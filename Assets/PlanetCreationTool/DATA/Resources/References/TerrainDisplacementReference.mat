@@ -1,0 +1,120 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &-2302811412566497375
+MonoBehaviour:
+  m_ObjectHideFlags: 11
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: d0353a89b1f911e48b9e16bdc9f2e058, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  version: 9
+--- !u!21 &2100000
+Material:
+  serializedVersion: 8
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_Name: TerrainDisplacementReference
+  m_Shader: {fileID: -6465566751694194690, guid: 1e52ce8778c12b449a78e18f79a67c99,
+    type: 3}
+  m_Parent: {fileID: 0}
+  m_ModifiedSerializedProperties: 0
+  m_ValidKeywords: []
+  m_InvalidKeywords: []
+  m_LightmapFlags: 2
+  m_EnableInstancingVariants: 0
+  m_DoubleSidedGI: 0
+  m_CustomRenderQueue: -1
+  stringTagMap: {}
+  disabledShaderPasses:
+  - MOTIONVECTORS
+  m_LockedProperties: 
+  m_SavedProperties:
+    serializedVersion: 3
+    m_TexEnvs:
+    - _BottomTexture:
+        m_Texture: {fileID: 2800000, guid: 1e70c3c0c329a8849b08ed64daa834ce, type: 3}
+        m_Scale: {x: 1, y: 1}
+        m_Offset: {x: 0, y: 0}
+    - _DistanceFromCenter:
+        m_Texture: {fileID: 2800000, guid: 9ac3c855a6338334b8c7ab76ba4842a3, type: 3}
+        m_Scale: {x: 1, y: 1}
+        m_Offset: {x: 0, y: 0}
+    - _Grass:
+        m_Texture: {fileID: 2800000, guid: f92264ddc2f709f4da8e54badb268474, type: 3}
+        m_Scale: {x: 1, y: 1}
+        m_Offset: {x: 0, y: 0}
+    - _Height:
+        m_Texture: {fileID: 0}
+        m_Scale: {x: 1, y: 1}
+        m_Offset: {x: 0, y: 0}
+    - _HeightMap:
+        m_Texture: {fileID: 0}
+        m_Scale: {x: 1, y: 1}
+        m_Offset: {x: 0, y: 0}
+    - _Normal:
+        m_Texture: {fileID: 0}
+        m_Scale: {x: 1, y: 1}
+        m_Offset: {x: 0, y: 0}
+    - _NormalMap:
+        m_Texture: {fileID: 0}
+        m_Scale: {x: 1, y: 1}
+        m_Offset: {x: 0, y: 0}
+    - _Rock:
+        m_Texture: {fileID: 2800000, guid: 32359788e9eb03340a8ac788006f4cdb, type: 3}
+        m_Scale: {x: 1, y: 1}
+        m_Offset: {x: 0, y: 0}
+    - _TopTexture:
+        m_Texture: {fileID: 2800000, guid: 730fb73c0591a39429dcd1e88434194f, type: 3}
+        m_Scale: {x: 1, y: 1}
+        m_Offset: {x: 0, y: 0}
+    - unity_Lightmaps:
+        m_Texture: {fileID: 0}
+        m_Scale: {x: 1, y: 1}
+        m_Offset: {x: 0, y: 0}
+    - unity_LightmapsInd:
+        m_Texture: {fileID: 0}
+        m_Scale: {x: 1, y: 1}
+        m_Offset: {x: 0, y: 0}
+    - unity_ShadowMasks:
+        m_Texture: {fileID: 0}
+        m_Scale: {x: 1, y: 1}
+        m_Offset: {x: 0, y: 0}
+    m_Ints: []
+    m_Floats:
+    - _Blend: 19.47
+    - _BottomSmoothness: 0.065
+    - _BottomTilling: 0.9
+    - _DisplacementIntensity: 1.7
+    - _GrassSmoothness: 0
+    - _GrassTilling: 0.24
+    - _NormalBlend: 157.3
+    - _QueueControl: 0
+    - _QueueOffset: 0
+    - _RockSmoothness: 0.171
+    - _RockTilling: 1.79
+    - _TerrainBlend: 4
+    - _TerrainTilling: 0.06
+    - _TextureBlend: 2.76
+    - _TextureSeparationHeight: 0.541
+    - _TextureSeparationSmoothness: 0.059
+    - _TextureTilling: 0.42
+    - _Tilling: 0.05
+    - _TopSmoothness: 0.068
+    - _TopTilling: 0.97
+    - _ViewIntensity: -3.54
+    m_Colors:
+    - _BottomColor: {r: 0.59302837, g: 0.6698113, b: 0.49603927, a: 0}
+    - _ColorBottom: {r: 0.28128338, g: 0.4056604, b: 0.301636, a: 0}
+    - _ColorTop: {r: 0.4339623, g: 0.4339623, b: 0.4339623, a: 0}
+    - _TexturePlacementRemap: {r: 0.45, g: 0.55, b: 0, a: 0}
+    - _TopColor: {r: 1, g: 1, b: 1, a: 0}
+    - _ViewIntensity: {r: -2.4, g: 2.54, b: 0, a: 0}
+  m_BuildTextureStacks: []
+  m_AllowLocking: 1

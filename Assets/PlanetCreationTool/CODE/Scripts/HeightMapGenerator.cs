@@ -1,0 +1,175 @@
+using System.Collections;
+using System.Collections.Generic;
+using UnityEditor;
+using UnityEditor.AssetImporters;
+using UnityEditor.SceneManagement;
+using UnityEngine;
+
+[ExecuteInEditMode]
+
+public class HeightMapGenerator : MonoBehaviour
+{
+    private const string TOOL_FOLDER_NAME = "PlanetCreationTool";
+    private const string SAVED_MODULE_FOLDER_PATH = "/DATA/Textures";
+    private const string HEIGHT_MAP_NAME = "_HeightMap";
+    private const string NORMAL_MAP_NAME = "_NormalMap";
+
+    public ComputeShader TextureGenerator;
+
+    [Space(5)]
+    public bool UpdateData = false;
+
+    public enum NoiseType
+    {
+        Perlin = 0,
+        Voronoi = 1
+    }
+
+    public enum VoronoiDistance
+    {
+        EuclideanSquare = 0,
+        Euclidean = 1,
+        Manhattan = 2,
+        Chebyshev = 3
+    }
+
+    public enum VoronoiResult
+    {
+        Closest = 0,
+        SecondClosest = 1,
+        Difference = 2,
+        Average = 3
+    }
+
+    [HideInInspector] public NoiseType NoiseTypeValue = NoiseType.Voronoi;
+    [HideInInspector] public VoronoiDistance VoronoiDistanceValue = VoronoiDistance.Euclidean;
+    [HideInInspector] public VoronoiResult VoronoiResultValue = VoronoiResult.Average;
+
+    [HideInInspector] public Vector3 Position = Vector3.zero;
+    [Space(10)]
+    public int Seed = 0;
+
+    [HideInInspector] public int TextureResolution = 2048;
+
+    public AnimationCurve heightRemap = AnimationCurve.Linear(0.0f, 0.0f, 1.0f, 1.0f);
+    public float NoiseScale = 300.0f;
+    [HideInInspector] public int OctaveCount = 10;
+    [Range(1.0f, 3.0f)]
+    public float NoiseGain = 2;
+    [Range(0.1f, 0.9f)]
+    public float NoiseLacunarity = 0.5f;
+    public float NormalIntensity = 10.0f;
+    public float NormalLimitation = 1.0f;
+    [HideInInspector] public float AOIntensity = 0.0f;
+
+    private RenderTexture _generatedTexture;
+    private RenderTexture _normalTexture;
+
+    private ComputeBuffer _heightRemapData;
+
+    private int _kernelGenerator;
+    private int _kernelNormal;
+
+    private void OnEnable()
+    {
+        EditorSceneManager.sceneSaving += OnSavingScene;
+    }
+
+    private void OnDisable()
+    {
+        EditorSceneManager.sceneSaving -= OnSavingScene;
+    }
+
+    private void Start()
+    {
+        InitGeneration(this.transform.GetChild(0).GetComponent<MeshRenderer>());
+        UpdateHeightMap();
+    }
+
+    void OnSavingScene(UnityEngine.SceneManagement.Scene scene, string path)
+    {
+        InitGeneration(this.transform.GetChild(0).GetComponent<MeshRenderer>());
+        UpdateHeightMap();
+    }
+
+    private void Update()
+    {
+        if(UpdateData)
+        {
+            Debug.Log("Generate " + this.transform.name, this.transform);
+            InitGeneration(this.transform.GetChild(0).GetComponent<MeshRenderer>());
+            UpdateData = false;
+        }
+    }
+
+    public void UpdateTerrain()
+    {
+        if(_heightRemapData == null) { InitGeneration(this.transform.GetChild(0).GetComponent<MeshRenderer>()); }
+        UpdateHeightMap();
+    }
+
+    public void InitGeneration(MeshRenderer renderer)
+    {
+        if (_generatedTexture != null)
+            _generatedTexture.Release();
+        if (_normalTexture != null)
+            _normalTexture.Release();
+        if (_heightRemapData != null)
+            _heightRemapData.Release();
+
+        _generatedTexture = new RenderTexture(TextureResolution, TextureResolution, 0, RenderTextureFormat.R16, RenderTextureReadWrite.Linear);
+        _generatedTexture.enableRandomWrite = true;
+        _generatedTexture.wrapMode = TextureWrapMode.Mirror;
+        _generatedTexture.Create();
+
+        _normalTexture = new RenderTexture(TextureResolution, TextureResolution, 0, RenderTextureFormat.ARGBHalf, RenderTextureReadWrite.Linear);
+        _normalTexture.enableRandomWrite = true;
+        _normalTexture.wrapMode = TextureWrapMode.Mirror;
+        _normalTexture.Create();
+
+        _kernelGenerator = TextureGenerator.FindKernel("CSMain");
+        _kernelNormal = TextureGenerator.FindKernel("CSNormal");
+
+        _heightRemapData = new ComputeBuffer(256, 4);
+
+        renderer.sharedMaterial.SetTexture(HEIGHT_MAP_NAME, _generatedTexture);
+        renderer.sharedMaterial.SetTexture(NORMAL_MAP_NAME, _normalTexture);
+    }
+
+    private void UpdateHeightMap()
+    {
+        float[] tempBuffer = new float[256];
+
+        for (int i = 0; i < 256; i++)
+        {
+            float t = (float)i / (float)256.0f;
+            float value = heightRemap.Evaluate(t);
+            tempBuffer[i] = value;
+        }
+
+        _heightRemapData.SetData(tempBuffer);
+
+
+        TextureGenerator.SetFloat("NoiseScale", NoiseScale);
+        TextureGenerator.SetInt("OctaveCount", OctaveCount);
+        TextureGenerator.SetFloat("NoiseGain", NoiseGain);
+        TextureGenerator.SetFloat("NoiseLacunarity", NoiseLacunarity);
+        TextureGenerator.SetFloat("NormalIntensity", NormalIntensity);
+        TextureGenerator.SetFloat("NormalLimitation", NormalLimitation);
+        TextureGenerator.SetFloat("AOIntensity", AOIntensity);
+        TextureGenerator.SetVector("Position", Position);
+        TextureGenerator.SetFloat("Seed", Seed);
+
+        TextureGenerator.SetInt("NoiseType", (int)NoiseTypeValue);
+        TextureGenerator.SetInt("VoronoiDistance", (int)VoronoiDistanceValue);
+        TextureGenerator.SetInt("VoronoiResult", (int)VoronoiResultValue);
+
+        TextureGenerator.SetBuffer(_kernelGenerator, "HeightRemapData", _heightRemapData);
+        TextureGenerator.SetTexture(_kernelGenerator, "HeightOutput", _generatedTexture);
+        TextureGenerator.Dispatch(_kernelGenerator, TextureResolution / 8, TextureResolution / 8, 1);
+
+        TextureGenerator.SetTexture(_kernelNormal, "HeightInput", _generatedTexture);
+        TextureGenerator.SetTexture(_kernelNormal, "NormalOutput", _normalTexture);
+        TextureGenerator.Dispatch(_kernelNormal, TextureResolution / 8, TextureResolution / 8, 1);
+    }
+}
