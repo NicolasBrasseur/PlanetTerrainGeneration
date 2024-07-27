@@ -4,6 +4,7 @@ using UnityEditor;
 using UnityEditor.AssetImporters;
 using UnityEditor.SceneManagement;
 using UnityEngine;
+using System.IO;
 
 [ExecuteInEditMode]
 
@@ -171,5 +172,31 @@ public class HeightMapGenerator : MonoBehaviour
         TextureGenerator.SetTexture(_kernelNormal, "HeightInput", _generatedTexture);
         TextureGenerator.SetTexture(_kernelNormal, "NormalOutput", _normalTexture);
         TextureGenerator.Dispatch(_kernelNormal, TextureResolution / 8, TextureResolution / 8, 1);
+    }
+
+    public void ExportAllTextures()
+    {
+        ExportTexture(_generatedTexture, "ExportedHeightMap");
+        ExportTexture(_normalTexture, "ExportedNormalMap");
+    }
+
+    private void ExportTexture(RenderTexture source, string name)
+    {
+        Texture2D exportTexture = new Texture2D(source.width, source.height, TextureFormat.RGB24, false);
+        // ReadPixels looks at the active RenderTexture.
+        RenderTexture.active = source;
+        exportTexture.ReadPixels(new Rect(0, 0, source.width, source.height), 0, 0);
+        exportTexture.Apply();
+
+        //then Save To Disk as PNG
+        byte[] bytes = exportTexture.EncodeToPNG();
+        var dirPath = Application.dataPath + "/SaveImages/";
+        if (!Directory.Exists(dirPath))
+        {
+            Directory.CreateDirectory(dirPath);
+        }
+        File.WriteAllBytes(dirPath + name + ".png", bytes);
+
+        Debug.Log($"Exported {name} at this location : {dirPath}");
     }
 }

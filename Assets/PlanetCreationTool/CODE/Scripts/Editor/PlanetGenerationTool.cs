@@ -937,6 +937,11 @@ public class PlanetGenerationTool : EditorWindow
                     ApplyShapeDefaultParameters();
                     ApplyTerrainDefaultParameters();
                 }
+
+                if (GUILayout.Button("Export textures"))
+                {
+                    _heightMapGenerator.ExportAllTextures();
+                }
             }
 
             void AtmosphereTab()
