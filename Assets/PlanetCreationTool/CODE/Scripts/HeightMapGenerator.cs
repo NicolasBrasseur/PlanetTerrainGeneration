@@ -120,12 +120,12 @@ public class HeightMapGenerator : MonoBehaviour
 
         _generatedTexture = new RenderTexture(TextureResolution, TextureResolution, 0, RenderTextureFormat.R16, RenderTextureReadWrite.Linear);
         _generatedTexture.enableRandomWrite = true;
-        _generatedTexture.wrapMode = TextureWrapMode.Mirror;
+        _generatedTexture.wrapMode = TextureWrapMode.Clamp;
         _generatedTexture.Create();
 
         _normalTexture = new RenderTexture(TextureResolution, TextureResolution, 0, RenderTextureFormat.ARGBHalf, RenderTextureReadWrite.Linear);
         _normalTexture.enableRandomWrite = true;
-        _normalTexture.wrapMode = TextureWrapMode.Mirror;
+        _normalTexture.wrapMode = TextureWrapMode.Clamp;
         _normalTexture.Create();
 
         _kernelGenerator = TextureGenerator.FindKernel("CSMain");
