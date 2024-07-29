@@ -196,8 +196,8 @@ void CSNormal(uint3 id : SV_DispatchThreadID, uint3 gtid : SV_GroupThreadID)
     
     //float Gx = frac(saturate((h00 - h20 + 2.0 * h01 - 2.0 * h21 + h02 - h22) * NormalLimitation)) * NormalIntensity; // Difference between left and right neighbors
     //float Gy = frac(saturate((h00 - h02 + 2.0 * h10 - 2.0 * h12 + h20 - h22) * NormalLimitation)) * NormalIntensity; // Difference between top and bottom neighbors
-    float Gx = clamp(h00 - h20 + 2.0 * h01 - 2.0 * h21 + h02 - h22, -1, NormalLimitation) * NormalIntensity; // Difference between left and right neighbors
-    float Gy = clamp(h00 - h02 + 2.0 * h10 - 2.0 * h12 + h20 - h22, -1, NormalLimitation) * NormalIntensity; // Difference between top and bottom neighbors
+    float Gx = clamp(h00 - h20 + 2.0 * h01 - 2.0 * h21 + h02 - h22, -1, NormalLimitation) * NormalIntensity * (1 - floor(id.x / 2047)); // Difference between left and right neighbors
+    float Gy = clamp(h00 - h02 + 2.0 * h10 - 2.0 * h12 + h20 - h22, -1, NormalLimitation) * NormalIntensity * (1 - floor(id.y / 2047)); // Difference between top and bottom neighbors
     float Gz = 0.5 * sqrt(max(0.0, 1.0 - Gx * Gx - Gy * Gy)); // Regenerate z component
     
     float3 normal = normalize(float3(2.0 * Gx, 2.0 * Gy, Gz));
