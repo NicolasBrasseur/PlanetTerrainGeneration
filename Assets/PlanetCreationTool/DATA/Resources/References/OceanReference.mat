@@ -38,6 +38,10 @@ Material:
   m_SavedProperties:
     serializedVersion: 3
     m_TexEnvs:
+    - _BaseColor:
+        m_Texture: {fileID: 0}
+        m_Scale: {x: 1, y: 1}
+        m_Offset: {x: 0, y: 0}
     - _Normal:
         m_Texture: {fileID: 2800000, guid: 9399037e36fc91343b0134fcbc249d43, type: 3}
         m_Scale: {x: 1, y: 1}
@@ -48,6 +52,10 @@ Material:
         m_Offset: {x: 0, y: 0}
     - _PerlinTexture:
         m_Texture: {fileID: 2800000, guid: ae2b0752f6a36014c91336ed0e8b3ee5, type: 3}
+        m_Scale: {x: 1, y: 1}
+        m_Offset: {x: 0, y: 0}
+    - _TriplanarLOD_eace054b29da4355b5a4959f9b81b0c0_NormalTex_3485810218_Texture2D:
+        m_Texture: {fileID: 0}
         m_Scale: {x: 1, y: 1}
         m_Offset: {x: 0, y: 0}
     - unity_Lightmaps:
@@ -67,7 +75,7 @@ Material:
     - _Blend: 1
     - _HeightNoiseScale: 100
     - _Metalness: 0
-    - _OceanHeightVariation: 8
+    - _OceanHeightVariation: 0
     - _OceanVariation: -8.34
     - _PerlinScale: 70
     - _QueueControl: 0

@@ -6,8 +6,8 @@ using UnityEngine;
 public class PlanetData : ScriptableObject
 {
     [Header("Planet parameters")]
-    public float PlanetSize = 1;
-    public int PlanetResolution = 5;
+    public float PlanetSize = 60;
+    public int PlanetResolution = 200;
 
     [Space(10)]
     [Header("Terrain shape parameters")]
@@ -21,16 +21,26 @@ public class PlanetData : ScriptableObject
 
     [Space(10)]
     [Header("Terrain material parameters")]
-    public Texture TerrainTopTexture;
-    public Texture TerrainBottomTexture;
-    public Color TerrainTopColor;
-    public Color TerrainBottomColor;
-    public float TerrainTopTextureTilling = 1.0f;
-    public float TerrainBottomTextureTilling = 1.0f;
-    public float TerrainTopSmoothness = 1.0f;
-    public float TerrainBottomSmoothness = 1.0f;
-    public float TerrainTexturesSeparationHeight = 0.5f;
+    public Texture TerrainTexture01;
+    public Texture TerrainTexture02;
+    public Texture TerrainTexture03;
+    public Texture TerrainTexture04;
+    public Color TerrainTextureColor01 = Color.white;
+    public Color TerrainTextureColor02 = Color.white;
+    public Color TerrainTextureColor03 = Color.white;
+    public Color TerrainTextureColor04 = Color.white;
+    public float TerrainTextureTilling01 = 1.0f;
+    public float TerrainTextureTilling02 = 1.0f;
+    public float TerrainTextureTilling03 = 1.0f;
+    public float TerrainTextureTilling04 = 1.0f;
+    public float TerrainTextureSmoothness01 = 0.0f;
+    public float TerrainTextureSmoothness02 = 0.0f;
+    public float TerrainTextureSmoothness03 = 0.0f;
+    public float TerrainTextureSmoothness04 = 0.0f;
     public float TerrainTexturesSeparationSmoothness = 0.0f;
+    public float TerrainTexture02Height = 0.0f;
+    public float TerrainTexture03Height = 0.0f;
+    public float TerrainTexture04Height = 0.0f;
 
     [Space(10)]
     [Header("Atmosphere parameters")]

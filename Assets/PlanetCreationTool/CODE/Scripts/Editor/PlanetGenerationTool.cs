@@ -56,16 +56,26 @@ public class PlanetGenerationTool : EditorWindow
     private float _detailsIntensity = 1.0f;
 
     //Terrain material parameters
-    private Texture _terrainTopTexture;
-    private Texture _terrainBottomTexture;
-    private Color _terrainTopColor;
-    private Color _terrainBottomColor;
-    private float _terrainTopTextureTilling = 1.0f;
-    private float _terrainBottomTextureTilling = 1.0f;
-    private float _terrainTopSmoothness = 1.0f;
-    private float _terrainBottomSmoothness = 1.0f;
-    private float _terrainTexturesSeparationHeight = 0.5f;
-    private float _terrainTexturesSeparationSmoothness = 0.0f;
+    public Texture _terrainTexture01;
+    public Texture _terrainTexture02;
+    public Texture _terrainTexture03;
+    public Texture _terrainTexture04;
+    public Color _terrainTextureColor01 = Color.white;
+    public Color _terrainTextureColor02 = Color.white;
+    public Color _terrainTextureColor03 = Color.white;
+    public Color _terrainTextureColor04 = Color.white;
+    public float _terrainTextureTilling01 = 1.0f;
+    public float _terrainTextureTilling02 = 1.0f;
+    public float _terrainTextureTilling03 = 1.0f;
+    public float _terrainTextureTilling04 = 1.0f;
+    public float _terrainTextureSmoothness01 = 0.0f;
+    public float _terrainTextureSmoothness02 = 0.0f;
+    public float _terrainTextureSmoothness03 = 0.0f;
+    public float _terrainTextureSmoothness04 = 0.0f;
+    public float _terrainTexturesSeparationSmoothness = 0.0f;
+    public float _terrainTexture02Height = 0.0f;
+    public float _terrainTexture03Height = 0.0f;
+    public float _terrainTexture04Height = 0.0f;
 
     //Atmosphere parameters
     private bool _hasAtmosphere;
@@ -465,16 +475,26 @@ public class PlanetGenerationTool : EditorWindow
         _detailsIntensity = _heightMapGenerator.NormalIntensity;
 
         _mountainsHeight = _selectedTerrainMaterial.GetFloat("_DisplacementIntensity");
-        _terrainTopTexture = _selectedTerrainMaterial.GetTexture("_TopTexture");
-        _terrainBottomTexture = _selectedTerrainMaterial.GetTexture("_BottomTexture");
-        _terrainTopColor = _selectedTerrainMaterial.GetColor("_TopColor");
-        _terrainBottomColor = _selectedTerrainMaterial.GetColor("_BottomColor");
-        _terrainTopTextureTilling = _selectedTerrainMaterial.GetFloat("_TopTilling");
-        _terrainBottomTextureTilling = _selectedTerrainMaterial.GetFloat("_BottomTilling");
-        _terrainTopSmoothness = _selectedTerrainMaterial.GetFloat("_TopSmoothness");
-        _terrainBottomSmoothness = _selectedTerrainMaterial.GetFloat("_BottomSmoothness");
-        _terrainTexturesSeparationHeight = _selectedTerrainMaterial.GetFloat("_TextureSeparationHeight");
+        _terrainTexture01 = _selectedTerrainMaterial.GetTexture("_Texture01");
+        _terrainTexture02 = _selectedTerrainMaterial.GetTexture("_Texture02");
+        _terrainTexture03 = _selectedTerrainMaterial.GetTexture("_Texture03");
+        _terrainTexture04 = _selectedTerrainMaterial.GetTexture("_Texture04");
+        _terrainTextureColor01 = _selectedTerrainMaterial.GetColor("_Color01");
+        _terrainTextureColor02 = _selectedTerrainMaterial.GetColor("_Color02");
+        _terrainTextureColor03 = _selectedTerrainMaterial.GetColor("_Color03");
+        _terrainTextureColor04 = _selectedTerrainMaterial.GetColor("_Color04");
+        _terrainTextureTilling01 = _selectedTerrainMaterial.GetFloat("_TillingTexture01");
+        _terrainTextureTilling02 = _selectedTerrainMaterial.GetFloat("_TillingTexture02");
+        _terrainTextureTilling03 = _selectedTerrainMaterial.GetFloat("_TillingTexture03");
+        _terrainTextureTilling04 = _selectedTerrainMaterial.GetFloat("_TillingTexture04");
+        _terrainTextureSmoothness01 = _selectedTerrainMaterial.GetFloat("_SmoothnessTexture01");
+        _terrainTextureSmoothness01 = _selectedTerrainMaterial.GetFloat("_SmoothnessTexture02");
+        _terrainTextureSmoothness01 = _selectedTerrainMaterial.GetFloat("_SmoothnessTexture03");
+        _terrainTextureSmoothness01 = _selectedTerrainMaterial.GetFloat("_SmoothnessTexture04");
         _terrainTexturesSeparationSmoothness = _selectedTerrainMaterial.GetFloat("_TextureSeparationSmoothness");
+        _terrainTexture02Height = _selectedTerrainMaterial.GetFloat("_Texture02Height");
+        _terrainTexture03Height = _selectedTerrainMaterial.GetFloat("_Texture03Height");
+        _terrainTexture04Height = _selectedTerrainMaterial.GetFloat("_Texture04Height");
 
         _hasAtmosphere = planetData.HasAtmosphere;
         _atmosphereMainColor = _selectedAtmosphereMaterial.GetColor("_BaseColor");
@@ -523,16 +543,26 @@ public class PlanetGenerationTool : EditorWindow
         Material referenceMaterial = Resources.Load<Material>(TERRAIN_REFERENCE_MATERIAL_PATH);
 
         _mountainsHeight = referenceMaterial.GetFloat("_DisplacementIntensity");
-        _terrainTopTexture = referenceMaterial.GetTexture("_TopTexture");
-        _terrainBottomTexture = referenceMaterial.GetTexture("_BottomTexture");
-        _terrainTopColor = referenceMaterial.GetColor("_TopColor");
-        _terrainBottomColor = referenceMaterial.GetColor("_BottomColor");
-        _terrainTopTextureTilling = referenceMaterial.GetFloat("_TopTilling");
-        _terrainBottomTextureTilling = referenceMaterial.GetFloat("_BottomTilling");
-        _terrainTopSmoothness = referenceMaterial.GetFloat("_TopSmoothness");
-        _terrainBottomSmoothness = referenceMaterial.GetFloat("_BottomSmoothness");
-        _terrainTexturesSeparationHeight = referenceMaterial.GetFloat("_TextureSeparationHeight");
+        _terrainTexture01 = referenceMaterial.GetTexture("_Texture01");
+        _terrainTexture02 = referenceMaterial.GetTexture("_Texture02");
+        _terrainTexture03 = referenceMaterial.GetTexture("_Texture03");
+        _terrainTexture04 = referenceMaterial.GetTexture("_Texture04");
+        _terrainTextureColor01 = referenceMaterial.GetColor("_Color01");
+        _terrainTextureColor02 = referenceMaterial.GetColor("_Color02");
+        _terrainTextureColor03 = referenceMaterial.GetColor("_Color03");
+        _terrainTextureColor04 = referenceMaterial.GetColor("_Color04");
+        _terrainTextureTilling01 = referenceMaterial.GetFloat("_TillingTexture01");
+        _terrainTextureTilling02 = referenceMaterial.GetFloat("_TillingTexture02");
+        _terrainTextureTilling03 = referenceMaterial.GetFloat("_TillingTexture03");
+        _terrainTextureTilling04 = referenceMaterial.GetFloat("_TillingTexture04");
+        _terrainTextureSmoothness01 = referenceMaterial.GetFloat("_SmoothnessTexture01");
+        _terrainTextureSmoothness01 = referenceMaterial.GetFloat("_SmoothnessTexture02");
+        _terrainTextureSmoothness01 = referenceMaterial.GetFloat("_SmoothnessTexture03");
+        _terrainTextureSmoothness01 = referenceMaterial.GetFloat("_SmoothnessTexture04");
         _terrainTexturesSeparationSmoothness = referenceMaterial.GetFloat("_TextureSeparationSmoothness");
+        _terrainTexture02Height = referenceMaterial.GetFloat("_Texture02Height");
+        _terrainTexture03Height = referenceMaterial.GetFloat("_Texture03Height");
+        _terrainTexture04Height = referenceMaterial.GetFloat("_Texture04Height");
     }
 
     void ApplyAtmosphereDefaultParameters()
@@ -597,16 +627,26 @@ public class PlanetGenerationTool : EditorWindow
         planetData.NoiseLacunarity = _noiseLacunarity;
         planetData.DetailsIntensity = _detailsIntensity;
 
-        planetData.TerrainTopTexture = _terrainTopTexture;
-        planetData.TerrainBottomTexture = _terrainBottomTexture;
-        planetData.TerrainTopColor = _terrainTopColor;
-        planetData.TerrainBottomColor = _terrainBottomColor;
-        planetData.TerrainTopTextureTilling = _terrainTopTextureTilling;
-        planetData.TerrainBottomTextureTilling = _terrainBottomTextureTilling;
-        planetData.TerrainTopSmoothness = _terrainTopSmoothness;
-        planetData.TerrainBottomSmoothness = _terrainBottomSmoothness;
-        planetData.TerrainTexturesSeparationHeight = _terrainTexturesSeparationHeight;
+        planetData.TerrainTexture01 = _terrainTexture01;
+        planetData.TerrainTexture02 = _terrainTexture02;
+        planetData.TerrainTexture03 = _terrainTexture03;
+        planetData.TerrainTexture04 = _terrainTexture04;
+        planetData.TerrainTextureColor01 = _terrainTextureColor01;
+        planetData.TerrainTextureColor02 = _terrainTextureColor02;
+        planetData.TerrainTextureColor03 = _terrainTextureColor03;
+        planetData.TerrainTextureColor04 = _terrainTextureColor04;
+        planetData.TerrainTextureTilling01 = _terrainTextureTilling01;
+        planetData.TerrainTextureTilling02 = _terrainTextureTilling02;
+        planetData.TerrainTextureTilling03 = _terrainTextureTilling03;
+        planetData.TerrainTextureTilling04 = _terrainTextureTilling04;
+        planetData.TerrainTextureSmoothness01 = _terrainTextureSmoothness01;
+        planetData.TerrainTextureSmoothness02 = _terrainTextureSmoothness02;
+        planetData.TerrainTextureSmoothness03 = _terrainTextureSmoothness03;
+        planetData.TerrainTextureSmoothness04 = _terrainTextureSmoothness04;
         planetData.TerrainTexturesSeparationSmoothness = _terrainTexturesSeparationSmoothness;
+        planetData.TerrainTexture02Height = _terrainTexture02Height;
+        planetData.TerrainTexture03Height = _terrainTexture03Height;
+        planetData.TerrainTexture04Height = _terrainTexture04Height;
 
         planetData.HasAtmosphere = _hasAtmosphere;
         planetData.AtmosphereMainColor = _atmosphereMainColor;
@@ -636,6 +676,10 @@ public class PlanetGenerationTool : EditorWindow
         planetData.RingsWidth = _ringsWidth;
         planetData.RingsColor = _ringsColor;
         planetData.RingsTexture = _ringsTexture;
+
+#if UNITY_EDITOR
+        UnityEditor.EditorUtility.SetDirty(planetData);
+#endif
     }
 
     void ImportPlanetData()
@@ -654,16 +698,26 @@ public class PlanetGenerationTool : EditorWindow
         _detailsIntensity = _importedPlanetData.DetailsIntensity;
 
         _mountainsHeight = _importedPlanetData.MountainsHeight;
-        _terrainTopTexture = _importedPlanetData.TerrainTopTexture;
-        _terrainBottomTexture = _importedPlanetData.TerrainBottomTexture;
-        _terrainTopColor = _importedPlanetData.TerrainTopColor;
-        _terrainBottomColor = _importedPlanetData.TerrainBottomColor;
-        _terrainTopTextureTilling = _importedPlanetData.TerrainTopTextureTilling;
-        _terrainBottomTextureTilling = _importedPlanetData.TerrainBottomTextureTilling;
-        _terrainTopSmoothness = _importedPlanetData.TerrainTopSmoothness;
-        _terrainBottomSmoothness = _importedPlanetData.TerrainBottomSmoothness;
-        _terrainTexturesSeparationHeight = _importedPlanetData.TerrainTexturesSeparationHeight;
+        _terrainTexture01 = _importedPlanetData.TerrainTexture01;
+        _terrainTexture02 = _importedPlanetData.TerrainTexture02;
+        _terrainTexture03 = _importedPlanetData.TerrainTexture03;
+        _terrainTexture04 = _importedPlanetData.TerrainTexture04;
+        _terrainTextureColor01 = _importedPlanetData.TerrainTextureColor01;
+        _terrainTextureColor02 = _importedPlanetData.TerrainTextureColor02;
+        _terrainTextureColor03 = _importedPlanetData.TerrainTextureColor03;
+        _terrainTextureColor04 = _importedPlanetData.TerrainTextureColor04;
+        _terrainTextureTilling01 = _importedPlanetData.TerrainTextureTilling01;
+        _terrainTextureTilling02 = _importedPlanetData.TerrainTextureTilling02;
+        _terrainTextureTilling03 = _importedPlanetData.TerrainTextureTilling03;
+        _terrainTextureTilling04 = _importedPlanetData.TerrainTextureTilling04;
+        _terrainTextureSmoothness01 = _importedPlanetData.TerrainTextureSmoothness01;
+        _terrainTextureSmoothness02 = _importedPlanetData.TerrainTextureSmoothness02;
+        _terrainTextureSmoothness03 = _importedPlanetData.TerrainTextureSmoothness03;
+        _terrainTextureSmoothness04 = _importedPlanetData.TerrainTextureSmoothness04;
         _terrainTexturesSeparationSmoothness = _importedPlanetData.TerrainTexturesSeparationSmoothness;
+        _terrainTexture02Height = _importedPlanetData.TerrainTexture02Height;
+        _terrainTexture03Height = _importedPlanetData.TerrainTexture03Height;
+        _terrainTexture04Height = _importedPlanetData.TerrainTexture04Height;
 
         _hasAtmosphere = _importedPlanetData.HasAtmosphere;
         _atmosphereMainColor = _importedPlanetData.AtmosphereMainColor;
@@ -917,16 +971,26 @@ public class PlanetGenerationTool : EditorWindow
                 SectionTitle("Terrain material parameters");
                 GUILayout.Space(SMALL_SPACE);
 
-                _terrainTopColor = EditorGUILayout.ColorField("Top color :", _terrainTopColor);
-                _terrainBottomColor = EditorGUILayout.ColorField("Bottom color :", _terrainBottomColor);
-                _terrainTopTexture = (Texture2D)EditorGUILayout.ObjectField("Top texture :", _terrainTopTexture, typeof(Texture2D), false);
-                _terrainBottomTexture = (Texture2D)EditorGUILayout.ObjectField("Bottom texture :", _terrainBottomTexture, typeof(Texture2D), false);
-                _terrainTopTextureTilling = EditorGUILayout.FloatField("Top texture tilling :", _terrainTopTextureTilling);
-                _terrainBottomTextureTilling = EditorGUILayout.FloatField("Bottom texture tilling :", _terrainBottomTextureTilling);
-                _terrainTopSmoothness = EditorGUILayout.Slider("Top smoothness :", _terrainTopSmoothness, 0.0f, 1.0f);
-                _terrainBottomSmoothness = EditorGUILayout.Slider("Bottom smoothness :", _terrainBottomSmoothness, 0.0f, 1.0f);
-                _terrainTexturesSeparationHeight = EditorGUILayout.Slider("Texture separation height :", _terrainTexturesSeparationHeight, 0.0f, 1.0f);
+                _terrainTextureColor01 = EditorGUILayout.ColorField("Terrain 1 color :", _terrainTextureColor01);
+                _terrainTextureColor02 = EditorGUILayout.ColorField("Terrain 2 color :", _terrainTextureColor02);
+                _terrainTextureColor03 = EditorGUILayout.ColorField("Terrain 3 color :", _terrainTextureColor03);
+                _terrainTextureColor04 = EditorGUILayout.ColorField("Terrain 4 color :", _terrainTextureColor04);
+                _terrainTexture01 = (Texture2D)EditorGUILayout.ObjectField("Terrain 1 texture :", _terrainTexture01, typeof(Texture2D), false);
+                _terrainTexture02 = (Texture2D)EditorGUILayout.ObjectField("Terrain 2 texture :", _terrainTexture02, typeof(Texture2D), false);
+                _terrainTexture03 = (Texture2D)EditorGUILayout.ObjectField("Terrain 3 texture :", _terrainTexture03, typeof(Texture2D), false);
+                _terrainTexture04 = (Texture2D)EditorGUILayout.ObjectField("Terrain 4 texture :", _terrainTexture04, typeof(Texture2D), false);
+                _terrainTextureTilling01 = EditorGUILayout.FloatField("Terrain 1 texture tilling :", _terrainTextureTilling01);
+                _terrainTextureTilling02 = EditorGUILayout.FloatField("Terrain 2 texture tilling :", _terrainTextureTilling02);
+                _terrainTextureTilling03 = EditorGUILayout.FloatField("Terrain 3 texture tilling :", _terrainTextureTilling03);
+                _terrainTextureTilling04 = EditorGUILayout.FloatField("Terrain 4 texture tilling :", _terrainTextureTilling04);
+                _terrainTextureSmoothness01 = EditorGUILayout.Slider("Terrain 1 smoothness :", _terrainTextureSmoothness01, 0.0f, 1.0f);
+                _terrainTextureSmoothness02 = EditorGUILayout.Slider("Terrain 2 smoothness :", _terrainTextureSmoothness02, 0.0f, 1.0f);
+                _terrainTextureSmoothness03 = EditorGUILayout.Slider("Terrain 3 smoothness :", _terrainTextureSmoothness03, 0.0f, 1.0f);
+                _terrainTextureSmoothness04 = EditorGUILayout.Slider("Terrain 4 smoothness :", _terrainTextureSmoothness04, 0.0f, 1.0f);
                 _terrainTexturesSeparationSmoothness = EditorGUILayout.Slider("Texture separation smoothness :", _terrainTexturesSeparationSmoothness, 0.0f, 1.0f);
+                _terrainTexture02Height = EditorGUILayout.Slider("Terrain 2 starting height :", _terrainTexture02Height, 0.0f, 1.0f);
+                _terrainTexture03Height = EditorGUILayout.Slider("Terrain 3 starting height :", _terrainTexture03Height, 0.0f, 1.0f);
+                _terrainTexture04Height = EditorGUILayout.Slider("Terrain 4 starting height :", _terrainTexture04Height, 0.0f, 1.0f);
 
                 GUILayout.Space(BIG_SPACE);
                 DrawUILine();
@@ -1110,16 +1174,26 @@ public class PlanetGenerationTool : EditorWindow
             _heightMapGenerator.UpdateTerrain();
 
             _selectedTerrainMaterial.SetFloat("_DisplacementIntensity", _mountainsHeight);
-            _selectedTerrainMaterial.SetTexture("_TopTexture", _terrainTopTexture);
-            _selectedTerrainMaterial.SetTexture("_BottomTexture", _terrainBottomTexture);
-            _selectedTerrainMaterial.SetColor("_TopColor", _terrainTopColor);
-            _selectedTerrainMaterial.SetColor("_BottomColor", _terrainBottomColor);
-            _selectedTerrainMaterial.SetFloat("_TopTilling", _terrainTopTextureTilling);
-            _selectedTerrainMaterial.SetFloat("_BottomTilling", _terrainBottomTextureTilling);
-            _selectedTerrainMaterial.SetFloat("_TopSmoothness", _terrainTopSmoothness);
-            _selectedTerrainMaterial.SetFloat("_BottomSmoothness", _terrainBottomSmoothness);
-            _selectedTerrainMaterial.SetFloat("_TextureSeparationHeight", _terrainTexturesSeparationHeight);
+            _selectedTerrainMaterial.SetTexture("_Texture01", _terrainTexture01);
+            _selectedTerrainMaterial.SetTexture("_Texture02", _terrainTexture02);
+            _selectedTerrainMaterial.SetTexture("_Texture03", _terrainTexture03);
+            _selectedTerrainMaterial.SetTexture("_Texture04", _terrainTexture04);
+            _selectedTerrainMaterial.SetColor("_Color01", _terrainTextureColor01);
+            _selectedTerrainMaterial.SetColor("_Color02", _terrainTextureColor02);
+            _selectedTerrainMaterial.SetColor("_Color03", _terrainTextureColor03);
+            _selectedTerrainMaterial.SetColor("_Color04", _terrainTextureColor04);
+            _selectedTerrainMaterial.SetFloat("_TillingTexture01", _terrainTextureTilling01);
+            _selectedTerrainMaterial.SetFloat("_TillingTexture02", _terrainTextureTilling02);
+            _selectedTerrainMaterial.SetFloat("_TillingTexture03", _terrainTextureTilling03);
+            _selectedTerrainMaterial.SetFloat("_TillingTexture04", _terrainTextureTilling04);
+            _selectedTerrainMaterial.SetFloat("_SmoothnessTexture01", _terrainTextureSmoothness01);
+            _selectedTerrainMaterial.SetFloat("_SmoothnessTexture02", _terrainTextureSmoothness02);
+            _selectedTerrainMaterial.SetFloat("_SmoothnessTexture03", _terrainTextureSmoothness03);
+            _selectedTerrainMaterial.SetFloat("_SmoothnessTexture04", _terrainTextureSmoothness04);
             _selectedTerrainMaterial.SetFloat("_TextureSeparationSmoothness", _terrainTexturesSeparationSmoothness);
+            _selectedTerrainMaterial.SetFloat("_Texture02Height", _terrainTexture02Height);
+            _selectedTerrainMaterial.SetFloat("_Texture03Height", _terrainTexture03Height);
+            _selectedTerrainMaterial.SetFloat("_Texture04Height", _terrainTexture04Height);
 
             _selectedAtmosphere.gameObject.SetActive(_hasAtmosphere);
             _selectedAtmosphereMaterial.SetColor("_BaseColor", _atmosphereMainColor);
