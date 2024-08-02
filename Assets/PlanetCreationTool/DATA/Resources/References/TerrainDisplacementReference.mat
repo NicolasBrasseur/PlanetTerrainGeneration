@@ -146,12 +146,12 @@ Material:
     - _SmoothnessTexture04: 0
     - _TerrainBlend: 34.5
     - _TerrainTilling: 0.0111
-    - _Texture02Height: 0.511
+    - _Texture02Height: 0.501
     - _Texture03Height: 0.547
     - _Texture04Height: 0.666
     - _TextureBlend: 140
     - _TextureSeparationHeight: 0
-    - _TextureSeparationSmoothness: 0
+    - _TextureSeparationSmoothness: 0.006
     - _TextureTilling: 0.42
     - _Tilling: 0.05
     - _TillingTexture01: 1

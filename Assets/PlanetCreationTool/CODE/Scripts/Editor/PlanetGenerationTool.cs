@@ -119,10 +119,11 @@ public class PlanetGenerationTool : EditorWindow
     private const int ERROR_MESSAGE_HEIGHT = 20;
 
     private const int CREATION_TAB_INDEX = 0;
-    private const int TERRAIN_TAB_INDEX = 1;
-    private const int ATMOSPHERE_TAB_INDEX = 2;
-    private const int OCEAN_TAB_INDEX = 3;
-    private const int RINGS_TAB_INDEX = 4;
+    private const int ATMOSPHERE_TAB_INDEX = 1;
+    private const int RINGS_TAB_INDEX = 2;
+    private const int TERRAIN_TAB_INDEX = 3;
+    private const int OCEAN_TAB_INDEX = 4;
+    private const int RIVERS_TAB_INDEX = 5;
 
     private const float ATMOSPHERE_MIN_SIZE = 50.0f;
     private const float OCEAN_REFERENCE_HEIGHT = -1.0f;
@@ -196,10 +197,11 @@ public class PlanetGenerationTool : EditorWindow
         _mainMenuContents = new GUIContent[]
         {
             new GUIContent(" Creation and Importation", EditorGUIUtility.IconContent("CustomTool").image),
-            new GUIContent(" Terrain", EditorGUIUtility.IconContent("TerrainInspector.TerrainToolSplat").image),
             new GUIContent(" Atmosphere", EditorGUIUtility.IconContent("CloudConnect").image),
+            new GUIContent(" Rings", EditorGUIUtility.IconContent("DotFrameDotted").image),
+            new GUIContent(" Terrain", EditorGUIUtility.IconContent("TerrainInspector.TerrainToolSplat").image),
             new GUIContent(" Ocean", EditorGUIUtility.IconContent("d_TreeEditor.Wind").image),
-            new GUIContent(" Rings", EditorGUIUtility.IconContent("DotFrameDotted").image)
+            new GUIContent(" Rivers", EditorGUIUtility.IconContent("d_TreeEditor.Wind").image)
         };
 
         _toolTips = new string[]
@@ -823,7 +825,7 @@ public class PlanetGenerationTool : EditorWindow
         {
             if(!_allowNavigation) { GUI.enabled = false; }
 
-            _mainMenuIndex = GUILayout.Toolbar(_mainMenuIndex, _mainMenuContents);
+            _mainMenuIndex = GUILayout.SelectionGrid(_mainMenuIndex, _mainMenuContents, Mathf.CeilToInt(_mainMenuContents.Length/2.0f));
 
             GUI.enabled = true;
         }
@@ -835,14 +837,19 @@ public class PlanetGenerationTool : EditorWindow
                 CreationTab();
             }
 
-            else if(_mainMenuIndex == TERRAIN_TAB_INDEX)
-            {
-                TerrainTab();
-            }
-
             else if(_mainMenuIndex == ATMOSPHERE_TAB_INDEX)
             {
                 AtmosphereTab();
+            }
+
+            else if(_mainMenuIndex == RINGS_TAB_INDEX)
+            {
+                RingsTab();
+            }
+
+            else if(_mainMenuIndex == TERRAIN_TAB_INDEX)
+            {
+                TerrainTab();
             }
 
             else if(_mainMenuIndex == OCEAN_TAB_INDEX)
@@ -850,9 +857,9 @@ public class PlanetGenerationTool : EditorWindow
                 OceanTab();
             }
 
-            else if(_mainMenuIndex == RINGS_TAB_INDEX)
+            else if (_mainMenuIndex == RIVERS_TAB_INDEX)
             {
-                RingsTab();
+                RiversTab();
             }
 
 
@@ -927,6 +934,77 @@ public class PlanetGenerationTool : EditorWindow
 
                 GUI.backgroundColor = Color.grey;
 
+            }
+
+            void AtmosphereTab()
+            {
+                GUILayout.Space(BIG_SPACE);
+                DrawUILine();
+                GUILayout.Space(SMALL_SPACE);
+                SectionTitle("Atmosphere parameters");
+
+                GUILayout.Space(SMALL_SPACE);
+
+                _hasAtmosphere = EditorGUILayout.Toggle("Has atmosphere :", _hasAtmosphere);
+                GUILayout.Space(SMALL_SPACE);
+
+                if (_hasAtmosphere )
+                {
+                    _atmosphereMainColor = EditorGUILayout.ColorField(new GUIContent("Main color :"), _atmosphereMainColor, true, false, true);
+                    _atmosphereHorizonColor = EditorGUILayout.ColorField(new GUIContent("Horizon color :"), _atmosphereHorizonColor, true, false, true);
+                    _atmosphereRadius = EditorGUILayout.FloatField("Radius", _atmosphereRadius);
+                    if (_atmosphereRadius < 0) { _atmosphereRadius = 0; }
+                    _atmosphereDensity = EditorGUILayout.FloatField("Density :", _atmosphereDensity);
+                    if (_atmosphereDensity < 0) { _atmosphereDensity = 0; }
+                    _atmosphereEdgeSmoothness = EditorGUILayout.FloatField("Edge smoothness :", _atmosphereEdgeSmoothness);
+                    if (_atmosphereEdgeSmoothness < 0) { _atmosphereEdgeSmoothness = 0; }
+                    _atmospherePlanetVisibilityModifier = EditorGUILayout.Slider("Planet visibility modifier :", _atmospherePlanetVisibilityModifier, -70.0f, 70.0f);
+                    _atmosphereLightingDistance = EditorGUILayout.Slider("Lighting distance :", _atmosphereLightingDistance, -2.0f, 3.0f);
+                }
+
+                GUILayout.Space(BIG_SPACE);
+                DrawUILine();
+                GUILayout.Space(SMALL_SPACE);
+
+                if (GUILayout.Button("Reset to default"))
+                {
+                    ApplyAtmosphereDefaultParameters();
+                }
+            }
+
+            void RingsTab()
+            {
+                GUILayout.Space(BIG_SPACE);
+                DrawUILine();
+                GUILayout.Space(SMALL_SPACE);
+                SectionTitle("Rings parameters");
+
+                GUILayout.Space(SMALL_SPACE);
+
+                _hasRings = EditorGUILayout.Toggle("Has rings :", _hasRings);
+                GUILayout.Space(SMALL_SPACE);
+
+                if (_hasRings)
+                {
+                    _ringsSize = EditorGUILayout.FloatField("Size :", _ringsSize);
+                    if (_ringsSize < 0) { _ringsSize = 0; }
+                    _ringsWidth = EditorGUILayout.Slider("Width :", _ringsWidth, 0.0f, 1.0f);
+                    GUILayout.BeginHorizontal();
+                    GUILayout.Label(new GUIContent("Rotation :"));
+                    _ringsRotation = EditorGUILayout.Vector3Field("", _ringsRotation);
+                    GUILayout.EndHorizontal();
+                    _ringsColor = EditorGUILayout.ColorField(new GUIContent("Color :"), _ringsColor, true, false, true);
+                    _ringsTexture = (Texture2D)EditorGUILayout.ObjectField("Texture :", _ringsTexture, typeof(Texture2D), false);
+                }
+
+                GUILayout.Space(BIG_SPACE);
+                DrawUILine();
+                GUILayout.Space(SMALL_SPACE);
+
+                if (GUILayout.Button("Reset to default"))
+                {
+                    ApplyRingsDefaultParameters();
+                }
             }
 
             void TerrainTab()
@@ -1008,42 +1086,6 @@ public class PlanetGenerationTool : EditorWindow
                 }
             }
 
-            void AtmosphereTab()
-            {
-                GUILayout.Space(BIG_SPACE);
-                DrawUILine();
-                GUILayout.Space(SMALL_SPACE);
-                SectionTitle("Atmosphere parameters");
-
-                GUILayout.Space(SMALL_SPACE);
-
-                _hasAtmosphere = EditorGUILayout.Toggle("Has atmosphere :", _hasAtmosphere);
-                GUILayout.Space(SMALL_SPACE);
-
-                if (_hasAtmosphere )
-                {
-                    _atmosphereMainColor = EditorGUILayout.ColorField(new GUIContent("Main color :"), _atmosphereMainColor, true, false, true);
-                    _atmosphereHorizonColor = EditorGUILayout.ColorField(new GUIContent("Horizon color :"), _atmosphereHorizonColor, true, false, true);
-                    _atmosphereRadius = EditorGUILayout.FloatField("Radius", _atmosphereRadius);
-                    if (_atmosphereRadius < 0) { _atmosphereRadius = 0; }
-                    _atmosphereDensity = EditorGUILayout.FloatField("Density :", _atmosphereDensity);
-                    if (_atmosphereDensity < 0) { _atmosphereDensity = 0; }
-                    _atmosphereEdgeSmoothness = EditorGUILayout.FloatField("Edge smoothness :", _atmosphereEdgeSmoothness);
-                    if (_atmosphereEdgeSmoothness < 0) { _atmosphereEdgeSmoothness = 0; }
-                    _atmospherePlanetVisibilityModifier = EditorGUILayout.Slider("Planet visibility modifier :", _atmospherePlanetVisibilityModifier, -70.0f, 70.0f);
-                    _atmosphereLightingDistance = EditorGUILayout.Slider("Lighting distance :", _atmosphereLightingDistance, -2.0f, 3.0f);
-                }
-
-                GUILayout.Space(BIG_SPACE);
-                DrawUILine();
-                GUILayout.Space(SMALL_SPACE);
-
-                if (GUILayout.Button("Reset to default"))
-                {
-                    ApplyAtmosphereDefaultParameters();
-                }
-            }
-
             void OceanTab()
             {
                 GUILayout.Space(BIG_SPACE);
@@ -1083,38 +1125,22 @@ public class PlanetGenerationTool : EditorWindow
                 }
             }
 
-            void RingsTab()
+            void RiversTab()
             {
                 GUILayout.Space(BIG_SPACE);
                 DrawUILine();
                 GUILayout.Space(SMALL_SPACE);
-                SectionTitle("Rings parameters");
+                SectionTitle("Rivers parameters");
 
                 GUILayout.Space(SMALL_SPACE);
 
-                _hasRings = EditorGUILayout.Toggle("Has rings :", _hasRings);
-                GUILayout.Space(SMALL_SPACE);
-
-                if (_hasRings)
+                if(GUILayout.Button("Add River"))
                 {
-                    _ringsSize = EditorGUILayout.FloatField("Size :", _ringsSize);
-                    if (_ringsSize < 0) { _ringsSize = 0; }
-                    _ringsWidth = EditorGUILayout.Slider("Width :", _ringsWidth, 0.0f, 1.0f);
-                    GUILayout.BeginHorizontal();
-                    GUILayout.Label(new GUIContent("Rotation :"));
-                    _ringsRotation = EditorGUILayout.Vector3Field("", _ringsRotation);
-                    GUILayout.EndHorizontal();
-                    _ringsColor = EditorGUILayout.ColorField(new GUIContent("Color :"), _ringsColor, true, false, true);
-                    _ringsTexture = (Texture2D)EditorGUILayout.ObjectField("Texture :", _ringsTexture, typeof(Texture2D), false);
-                }
-
-                GUILayout.Space(BIG_SPACE);
-                DrawUILine();
-                GUILayout.Space(SMALL_SPACE);
-
-                if (GUILayout.Button("Reset to default"))
-                {
-                    ApplyRingsDefaultParameters();
+                    SelectOnMapWindow selectionWindow = (SelectOnMapWindow)EditorWindow.GetWindow(typeof(SelectOnMapWindow), true, "Selection Window", true);
+                    selectionWindow.minSize = new Vector2(535f, 610f);
+                    selectionWindow.LinkedWindow = this;
+                    selectionWindow.HeightMap = _heightMapGenerator.GetHeightMap();
+                    selectionWindow.Show();
                 }
             }
         }

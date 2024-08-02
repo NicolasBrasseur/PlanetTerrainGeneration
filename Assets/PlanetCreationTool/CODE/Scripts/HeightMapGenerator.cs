@@ -5,6 +5,7 @@ using UnityEditor.AssetImporters;
 using UnityEditor.SceneManagement;
 using UnityEngine;
 using System.IO;
+using static Unity.VisualScripting.Member;
 
 [ExecuteInEditMode]
 
@@ -174,21 +175,22 @@ public class HeightMapGenerator : MonoBehaviour
         TextureGenerator.Dispatch(_kernelNormal, TextureResolution / 8, TextureResolution / 8, 1);
     }
 
+    public Texture2D GetHeightMap()
+    {
+        return RenderTextureToTexture2D(_generatedTexture);
+    }
+
     public void ExportAllTextures()
     {
         ExportTexture(_generatedTexture, "ExportedHeightMap");
         ExportTexture(_normalTexture, "ExportedNormalMap");
     }
 
+    //https://stackoverflow.com/questions/44264468/convert-rendertexture-to-texture2d
     private void ExportTexture(RenderTexture source, string name)
     {
-        Texture2D exportTexture = new Texture2D(source.width, source.height, TextureFormat.RGB24, false);
-        // ReadPixels looks at the active RenderTexture.
-        RenderTexture.active = source;
-        exportTexture.ReadPixels(new Rect(0, 0, source.width, source.height), 0, 0);
-        exportTexture.Apply();
+        Texture2D exportTexture = RenderTextureToTexture2D(source);
 
-        //then Save To Disk as PNG
         byte[] bytes = exportTexture.EncodeToPNG();
         var dirPath = Application.dataPath + "/SaveImages/";
         if (!Directory.Exists(dirPath))
@@ -198,5 +200,16 @@ public class HeightMapGenerator : MonoBehaviour
         File.WriteAllBytes(dirPath + name + ".png", bytes);
 
         Debug.Log($"Exported {name} at this location : {dirPath}");
+    }
+
+    private Texture2D RenderTextureToTexture2D(RenderTexture source)
+    {
+        Texture2D targetTexture = new Texture2D(source.width, source.height, TextureFormat.RGB24, false);
+        // ReadPixels looks at the active RenderTexture.
+        RenderTexture.active = source;
+        targetTexture.ReadPixels(new Rect(0, 0, source.width, source.height), 0, 0);
+        targetTexture.Apply();
+
+        return targetTexture;
     }
 }
