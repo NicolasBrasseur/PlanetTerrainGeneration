@@ -111,7 +111,7 @@ MonoBehaviour:
   TerrainTexture04Height: 0
   HasAtmosphere: 0
   AtmosphereMainColor: {r: 0.7071067, g: 0.7071067, b: 0.7071067, a: 1}
-  AtmosphereHorizonColor: {r: 0.16667336, g: 1.0180621, b: 0.6101346, a: 1}
+  AtmosphereHorizonColor: {r: 0.16667283, g: 1.0180621, b: 0.6101346, a: 1}
   AtmosphereRadius: 26.53
   AtmosphereDensity: 0.02
   AtmosphereEdgeSmoothness: 6.33
@@ -119,7 +119,7 @@ MonoBehaviour:
   AtmospherePlanetVisibilityModifier: 6.2
   HasOcean: 0
   OceanHeight: 0
-  OceanColor: {r: 1.9766749, g: 0.55583626, b: 0.320821, a: 0}
+  OceanColor: {r: 1.9766749, g: 0.55583626, b: 0.32082042, a: 0}
   OceanTexture: {fileID: 0}
   OceanNormalTexture: {fileID: 2800000, guid: 9399037e36fc91343b0134fcbc249d43, type: 3}
   OceanTextureTilling: 2

@@ -1,5 +1,6 @@
 using System.Collections;
 using System.Collections.Generic;
+using System.Configuration;
 using UnityEditor;
 using UnityEditor.Compilation;
 using UnityEngine;
@@ -8,6 +9,9 @@ using UnityEngine.Rendering;
 public class PlanetGenerationTool : EditorWindow
 {
     #region Variables setup
+
+    //Publics
+    public List<Vector2> RiversSources = new List<Vector2>();
 
     //Privates
     private GUIContent[] _mainMenuContents;
@@ -56,26 +60,26 @@ public class PlanetGenerationTool : EditorWindow
     private float _detailsIntensity = 1.0f;
 
     //Terrain material parameters
-    public Texture _terrainTexture01;
-    public Texture _terrainTexture02;
-    public Texture _terrainTexture03;
-    public Texture _terrainTexture04;
-    public Color _terrainTextureColor01 = Color.white;
-    public Color _terrainTextureColor02 = Color.white;
-    public Color _terrainTextureColor03 = Color.white;
-    public Color _terrainTextureColor04 = Color.white;
-    public float _terrainTextureTilling01 = 1.0f;
-    public float _terrainTextureTilling02 = 1.0f;
-    public float _terrainTextureTilling03 = 1.0f;
-    public float _terrainTextureTilling04 = 1.0f;
-    public float _terrainTextureSmoothness01 = 0.0f;
-    public float _terrainTextureSmoothness02 = 0.0f;
-    public float _terrainTextureSmoothness03 = 0.0f;
-    public float _terrainTextureSmoothness04 = 0.0f;
-    public float _terrainTexturesSeparationSmoothness = 0.0f;
-    public float _terrainTexture02Height = 0.0f;
-    public float _terrainTexture03Height = 0.0f;
-    public float _terrainTexture04Height = 0.0f;
+    private Texture _terrainTexture01;
+    private Texture _terrainTexture02;
+    private Texture _terrainTexture03;
+    private Texture _terrainTexture04;
+    private Color _terrainTextureColor01 = Color.white;
+    private Color _terrainTextureColor02 = Color.white;
+    private Color _terrainTextureColor03 = Color.white;
+    private Color _terrainTextureColor04 = Color.white;
+    private float _terrainTextureTilling01 = 1.0f;
+    private float _terrainTextureTilling02 = 1.0f;
+    private float _terrainTextureTilling03 = 1.0f;
+    private float _terrainTextureTilling04 = 1.0f;
+    private float _terrainTextureSmoothness01 = 0.0f;
+    private float _terrainTextureSmoothness02 = 0.0f;
+    private float _terrainTextureSmoothness03 = 0.0f;
+    private float _terrainTextureSmoothness04 = 0.0f;
+    private float _terrainTexturesSeparationSmoothness = 0.0f;
+    private float _terrainTexture02Height = 0.0f;
+    private float _terrainTexture03Height = 0.0f;
+    private float _terrainTexture04Height = 0.0f;
 
     //Atmosphere parameters
     private bool _hasAtmosphere;
@@ -1130,17 +1134,43 @@ public class PlanetGenerationTool : EditorWindow
                 GUILayout.Space(BIG_SPACE);
                 DrawUILine();
                 GUILayout.Space(SMALL_SPACE);
-                SectionTitle("Rivers parameters");
+                SectionTitle("Rivers sources list");
 
                 GUILayout.Space(SMALL_SPACE);
 
-                if(GUILayout.Button("Add River"))
+                if (GUILayout.Button("Modify"))
                 {
                     SelectOnMapWindow selectionWindow = (SelectOnMapWindow)EditorWindow.GetWindow(typeof(SelectOnMapWindow), true, "Selection Window", true);
-                    selectionWindow.minSize = new Vector2(535f, 610f);
+                    selectionWindow.minSize = new Vector2(535f, 632f);
                     selectionWindow.LinkedWindow = this;
+                    selectionWindow.LinkedWindowScript = this;
                     selectionWindow.HeightMap = _heightMapGenerator.GetHeightMap();
+                    selectionWindow.SetupGrid();
+
                     selectionWindow.Show();
+                }
+
+                GUILayout.Space(SMALL_SPACE);
+                DrawUILine();
+
+                if(RiversSources.Count > 0)
+                {
+                    for (int i = 0; i < RiversSources.Count; i++)
+                    {
+                        EditorGUILayout.LabelField($"• River {i + 1} - x : {RiversSources[i].x} / y : {RiversSources[i].y}");
+                    }
+                }
+                else
+                {
+                    EditorGUILayout.LabelField("• There is no rivers source in the list, press the Modify button to add a new river source");
+                }
+
+                DrawUILine();
+                GUILayout.Space(SMALL_SPACE);
+
+                if (GUILayout.Button("Clear all"))
+                {
+                    RiversSources.Clear();
                 }
             }
         }

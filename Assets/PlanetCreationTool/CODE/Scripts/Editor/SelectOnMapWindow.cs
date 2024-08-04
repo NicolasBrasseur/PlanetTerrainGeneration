@@ -12,16 +12,21 @@ public class SelectOnMapWindow : EditorWindow
 {
     // Public
     public EditorWindow LinkedWindow;
+    public PlanetGenerationTool LinkedWindowScript;
     public Texture HeightMap;
 
     // Private
     private Vector2 _scrollPosition;
     private VisualElement _gridElement;
+    private Dictionary<Vector2, bool> _temporarySourcesChanges = new Dictionary<Vector2, bool>();
 
     // Consts
     private const int TOP_MARGIN = 20;
+    private const int SELECTION_AREA_TOP_MARGIN = 30;
     private const int BOTTOM_MARGIN = 15;
     private const int LEFT_AND_RIGHT_MARGINS = 10;
+    private const int CELL_SIZE = 8;
+    private const int TEXTURE_SIZE = 512;
 
     private void CreateGUI()
     {
@@ -30,10 +35,6 @@ public class SelectOnMapWindow : EditorWindow
         // Grid
         _gridElement = new VisualElement();
         root.Add(_gridElement);
-
-        Debug.Log("test");
-
-        SetupGrid();
     }
 
     private void OnGUI()
@@ -42,12 +43,33 @@ public class SelectOnMapWindow : EditorWindow
 
         SectionTitle("Select a river source location");
 
-        EditorGUI.DrawPreviewTexture(new Rect(0, 60, 512, 512), HeightMap); //GUILayout.Label(HeightMap);
+        EditorGUI.DrawPreviewTexture(new Rect(0, SELECTION_AREA_TOP_MARGIN, 512, 512), HeightMap); //GUILayout.Label(HeightMap);
 
-        if (GUILayout.Button("Close"))
+        GUILayout.Space(TEXTURE_SIZE + TOP_MARGIN);
+
+        if(_temporarySourcesChanges.Count > 0)
         {
-            LinkedWindow.Focus();
-            this.Close();
+            if (GUILayout.Button("Validate"))
+            {
+                ValidateChanges();
+                SetupGrid();
+            }
+
+            if (GUILayout.Button("Cancel"))
+            {
+                _temporarySourcesChanges.Clear();
+                LinkedWindow.Focus();
+                this.Close();
+            }
+        }
+        else
+        {
+            if (GUILayout.Button("Back"))
+            {
+                _temporarySourcesChanges.Clear();
+                LinkedWindow.Focus();
+                this.Close();
+            }
         }
 
         ScrollAndMarginsEnd();
@@ -56,20 +78,63 @@ public class SelectOnMapWindow : EditorWindow
     public void SetupGrid()
     {
         _gridElement.Clear();
+        _temporarySourcesChanges.Clear();
 
-        for (int x = 0; x < 128; x++)
+        HashSet<Vector2> temporarySourcesList = new HashSet<Vector2>();
+
+        if(LinkedWindowScript.RiversSources != null)
         {
-            for (int y = 0; y < 128; y++)
+            foreach (var element in LinkedWindowScript.RiversSources)
             {
-                Cell cell = new Cell(x, y, false, OnChangeCell);
+                temporarySourcesList.Add(element);
+            }
+        }
+
+        for (int x = 0; x < TEXTURE_SIZE / CELL_SIZE; x++)
+        {
+            for (int y = 0; y < TEXTURE_SIZE / CELL_SIZE; y++)
+            {
+                bool hasASource = temporarySourcesList.Contains(new Vector2(x, y));
+
+                Cell cell = new Cell(x, y, hasASource, OnChangeCell);
                 _gridElement.Add(cell);
             }
         }
+
+        temporarySourcesList.Clear();
     }
 
     private void OnChangeCell(int x, int y, bool isPressed, bool isActive)
     {
+        Vector2 cellPosition = new Vector2(x, y);
 
+        if(_temporarySourcesChanges.ContainsKey(cellPosition)) { _temporarySourcesChanges.Remove(cellPosition); }
+
+        if(!isPressed) { return; }
+
+        bool isAnAddition = !isActive;
+        _temporarySourcesChanges.Add(cellPosition, isAnAddition);
+    }
+
+    private void ValidateChanges()
+    {
+        List<Vector2> sourcesList = LinkedWindowScript.RiversSources;
+
+        foreach (var cell in _temporarySourcesChanges)
+        {
+            if(cell.Value) //Value contains the operation needed (addition or removal of a source)
+            {
+                //Add source
+                sourcesList.Add(cell.Key);
+            }
+            else
+            {
+                //Remove source
+                sourcesList.Remove(cell.Key);
+            }
+        }
+
+        LinkedWindowScript.RiversSources = sourcesList;
     }
 
     void SectionTitle(string title)
@@ -113,7 +178,7 @@ public class SelectOnMapWindow : EditorWindow
             this.isActive = isActive;
             this.callback = callback;
 
-            SetupStyle();
+            UpdateGridStyle();
 
             clicked += OnClick;
         }
@@ -122,21 +187,22 @@ public class SelectOnMapWindow : EditorWindow
         {
             isPressed = !isPressed;
             callback.Invoke(x, y, isPressed, isActive);
-            SetupStyle();
-
-            Debug.Log(x + " " + y);
+            UpdateGridStyle();
         }
 
-        private void SetupStyle()
+        private void UpdateGridStyle()
         {
-            style.backgroundColor = isPressed ? Color.blue : Color.clear;
+            if(isPressed && !isActive) { style.backgroundColor = Color.green; }
+            else if(isPressed && isActive) { style.backgroundColor = Color.red; }
+            else if(!isPressed && isActive) { style.backgroundColor = Color.blue; }
+            else { style.backgroundColor = Color.clear; }
 
             style.position = Position.Absolute;
-            style.left = x * 4 + LEFT_AND_RIGHT_MARGINS;
-            style.top = y * 4 + 60 + TOP_MARGIN;
+            style.left = x * CELL_SIZE + LEFT_AND_RIGHT_MARGINS;
+            style.top = y * CELL_SIZE + SELECTION_AREA_TOP_MARGIN + TOP_MARGIN;
 
-            style.width = 4;
-            style.height = 4;
+            style.width = CELL_SIZE;
+            style.height = CELL_SIZE;
 
             style.marginBottom = 0;
             style.marginLeft = 0;
