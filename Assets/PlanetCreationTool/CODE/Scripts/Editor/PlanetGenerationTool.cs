@@ -130,7 +130,7 @@ public class PlanetGenerationTool : EditorWindow
     private const int RIVERS_TAB_INDEX = 5;
 
     private const float ATMOSPHERE_MIN_SIZE = 50.0f;
-    private const float OCEAN_REFERENCE_HEIGHT = -1.0f;
+    private const float OCEAN_REFERENCE_HEIGHT = 0.0f;
     private const float RINGS_REFERENCE_SIZE = 8.0f;
 
     private const string PLANET_TAG = "Planet";
@@ -165,6 +165,7 @@ public class PlanetGenerationTool : EditorWindow
     private void OnDisable()
     {
         SaveData();
+        AssetDatabase.SaveAssets();
     }
 
     private void OnSelectionChange()
@@ -685,6 +686,7 @@ public class PlanetGenerationTool : EditorWindow
 
 #if UNITY_EDITOR
         UnityEditor.EditorUtility.SetDirty(planetData);
+        AssetDatabase.SaveAssets();
 #endif
     }
 
@@ -887,6 +889,7 @@ public class PlanetGenerationTool : EditorWindow
 
                 _planetSize = EditorGUILayout.FloatField(new GUIContent("Planet size :", _toolTips[1]), _planetSize);
                 if(_planetSize <= 0) { _planetSize = 1; }
+                if(_planetSize > 60) { _planetSize = 60; } // Temporary size limit
 
                 _planetResolution = EditorGUILayout.IntField(new GUIContent("Planet resolution :", _toolTips[2]), _planetResolution);
                 if(_planetResolution <= 0) { _planetResolution = 1; }
@@ -1020,7 +1023,12 @@ public class PlanetGenerationTool : EditorWindow
 
                 GUILayout.Space(SMALL_SPACE);
 
+                // Temporary size limit message
+                EditorGUILayout.LabelField(new GUIContent(" Size is currently limited to 60", EditorGUIUtility.IconContent("d_Invalid").image), _centeredStyle, GUILayout.MinHeight(ERROR_MESSAGE_HEIGHT));
+
+
                 _planetSize = EditorGUILayout.FloatField("Size :", _planetSize);
+                if(_planetSize > 60) { _planetSize = 60; } // Temporary size limit
                 _planetResolution = EditorGUILayout.IntField("Resolution :", _planetResolution);
 
                 GUILayout.Space(SMALL_SPACE);

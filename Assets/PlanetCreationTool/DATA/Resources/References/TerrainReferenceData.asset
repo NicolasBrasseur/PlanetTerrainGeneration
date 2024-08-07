@@ -55,7 +55,7 @@ MonoBehaviour:
     m_PreInfinity: 2
     m_PostInfinity: 2
     m_RotationOrder: 4
-  NoiseScale: 300
+  NoiseScale: 130
   NoiseGain: 2
   NoiseLacunarity: 0.5
-  DetailsIntensity: 7
+  DetailsIntensity: 3

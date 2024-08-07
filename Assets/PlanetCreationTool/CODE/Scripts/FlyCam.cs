@@ -22,18 +22,26 @@ public class FlyCam : MonoBehaviour
 
 	void Update()
 	{
-#if UNITY_EDITOR
-		rot += Input.GetAxis("Mouse X") * rotSpeed * Time.deltaTime;
-		tilt -= Input.GetAxis("Mouse Y") * tiltSpeed * Time.deltaTime;
-		rot += Input.GetAxis("RstickH") * rotSpeed * Time.deltaTime;
-		tilt += Input.GetAxis("RstickV") * tiltSpeed * Time.deltaTime;
-        tilt = Mathf.Clamp(tilt, -90, 90);
-		transform.eulerAngles = new Vector3(tilt, rot, 0.0f);
+		if(!PauseMenu.IsPaused)
+		{
+			UpdateFlyCam();
+		}
+	}
 
-		forward = Input.GetAxis("Vertical") * forwardSpeed * Time.deltaTime;
-		strafe = Input.GetAxis("Horizontal") * strafeSpeed * Time.deltaTime;
-		updown = Input.GetAxis("UpDown") * updownSpeed * Time.deltaTime;
-		transform.Translate(strafe, updown, forward);
+	private void UpdateFlyCam()
+	{
+#if UNITY_EDITOR
+        rot += Input.GetAxis("Mouse X") * rotSpeed * Time.deltaTime;
+        tilt -= Input.GetAxis("Mouse Y") * tiltSpeed * Time.deltaTime;
+        rot += Input.GetAxis("RstickH") * rotSpeed * Time.deltaTime;
+        tilt += Input.GetAxis("RstickV") * tiltSpeed * Time.deltaTime;
+        tilt = Mathf.Clamp(tilt, -90, 90);
+        transform.eulerAngles = new Vector3(tilt, rot, 0.0f);
+
+        forward = Input.GetAxis("Vertical") * forwardSpeed * Time.deltaTime;
+        strafe = Input.GetAxis("Horizontal") * strafeSpeed * Time.deltaTime;
+        updown = Input.GetAxis("UpDown") * updownSpeed * Time.deltaTime;
+        transform.Translate(strafe, updown, forward);
 #else
 #if UNITY_ANDROID
 		rot += Input.GetAxis("UpDown") * rotSpeed * Time.deltaTime;
@@ -62,5 +70,5 @@ public class FlyCam : MonoBehaviour
 		transform.Translate(strafe, updown, forward);
 #endif
 #endif
-	}
+    }
 }
