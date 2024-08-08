@@ -135,6 +135,7 @@ public class SelectOnMapWindow : EditorWindow
         }
 
         LinkedWindowScript.RiversSources = sourcesList;
+        LinkedWindowScript.ValidateRiversSources();
     }
 
     void SectionTitle(string title)

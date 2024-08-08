@@ -11,13 +11,8 @@ using static Unity.VisualScripting.Member;
 
 public class HeightMapGenerator : MonoBehaviour
 {
-    private const string TOOL_FOLDER_NAME = "PlanetCreationTool";
-    private const string SAVED_MODULE_FOLDER_PATH = "/DATA/Textures";
-    private const string HEIGHT_MAP_NAME = "_HeightMap";
-    private const string NORMAL_MAP_NAME = "_NormalMap";
-
+    // Public var
     public ComputeShader TextureGenerator;
-
     [Space(5)]
     public bool UpdateData = false;
 
@@ -64,13 +59,28 @@ public class HeightMapGenerator : MonoBehaviour
     public float NormalLimitation = 1.0f;
     [HideInInspector] public float AOIntensity = 0.0f;
 
+    [HideInInspector] public int[,] RiversSourcesTempBuffer = new int[64,64];
+
+    // Private var
     private RenderTexture _generatedTexture;
     private RenderTexture _normalTexture;
+    private RenderTexture _riversTexture;
 
     private ComputeBuffer _heightRemapData;
+    private ComputeBuffer _riversSourcesData;
 
     private int _kernelGenerator;
+    private int _kernelRiversSources;
+    private int _kernelRivers;
     private int _kernelNormal;
+
+    // Consts
+    private const string TOOL_FOLDER_NAME = "PlanetCreationTool";
+    private const string SAVED_MODULE_FOLDER_PATH = "/DATA/Textures";
+    private const string HEIGHT_MAP_NAME = "_HeightMap";
+    private const string NORMAL_MAP_NAME = "_NormalMap";
+
+
 
     private void OnEnable()
     {
@@ -112,6 +122,8 @@ public class HeightMapGenerator : MonoBehaviour
 
     public void InitGeneration(MeshRenderer renderer)
     {
+        InitRivers();
+
         if (_generatedTexture != null)
             _generatedTexture.Release();
         if (_normalTexture != null)
@@ -136,6 +148,24 @@ public class HeightMapGenerator : MonoBehaviour
 
         renderer.sharedMaterial.SetTexture(HEIGHT_MAP_NAME, _generatedTexture);
         renderer.sharedMaterial.SetTexture(NORMAL_MAP_NAME, _normalTexture);
+    }
+
+    private void InitRivers()
+    {
+        if (_riversTexture != null)
+            _riversTexture.Release();
+
+        _riversTexture = new RenderTexture(TextureResolution, TextureResolution, 0, RenderTextureFormat.R16, RenderTextureReadWrite.Linear);
+        _riversTexture.enableRandomWrite = true;
+        _riversTexture.wrapMode = TextureWrapMode.Clamp;
+        _riversTexture.Create();
+
+        _riversSourcesData = new ComputeBuffer(4096, 4);
+
+        _kernelRiversSources = TextureGenerator.FindKernel("CSRiversSources");
+        _kernelRivers = TextureGenerator.FindKernel("CSRivers");
+
+        //set texture _riversTexture
     }
 
     private void UpdateHeightMap()
@@ -175,6 +205,29 @@ public class HeightMapGenerator : MonoBehaviour
         TextureGenerator.Dispatch(_kernelNormal, TextureResolution / 8, TextureResolution / 8, 1);
     }
 
+    public void UpdateRiversSources()
+    {
+        if(_riversSourcesData == null) { InitRivers(); }
+        _riversSourcesData.SetData(RiversSourcesTempBuffer);
+        TextureGenerator.SetBuffer(_kernelRiversSources, "RiversSourcesData", _riversSourcesData);
+        TextureGenerator.SetTexture(_kernelRiversSources, "RiversOutput", _riversTexture);
+
+        for (int i = 0; i < 64; i++)
+        {
+            for (int j = 0; j < 64; j++)
+            {
+                Debug.Log(RiversSourcesTempBuffer[i, j]);
+            }
+        }
+
+        TextureGenerator.Dispatch(_kernelRiversSources, TextureResolution / 8, TextureResolution / 8, 1);
+    }
+
+    private void UpdateRivers()
+    {
+
+    }
+
     public Texture2D GetHeightMap()
     {
         return RenderTextureToTexture2D(_generatedTexture);
@@ -184,6 +237,7 @@ public class HeightMapGenerator : MonoBehaviour
     {
         ExportTexture(_generatedTexture, "ExportedHeightMap");
         ExportTexture(_normalTexture, "ExportedNormalMap");
+        ExportTexture(_riversTexture, "ExportedRiversMap");
     }
 
     //https://stackoverflow.com/questions/44264468/convert-rendertexture-to-texture2d

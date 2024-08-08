@@ -757,6 +757,17 @@ public class PlanetGenerationTool : EditorWindow
         _ringsTexture = _importedPlanetData.RingsTexture;
     }
 
+    public void ValidateRiversSources()
+    {
+        int[,] tempBuffer = _heightMapGenerator.RiversSourcesTempBuffer;
+        foreach(Vector2 sourcePosition in RiversSources)
+        {
+            tempBuffer[(int)sourcePosition.x, (int)sourcePosition.y] = 1;
+        }
+
+        _heightMapGenerator.UpdateRiversSources();
+    }
+
     #endregion
 
 

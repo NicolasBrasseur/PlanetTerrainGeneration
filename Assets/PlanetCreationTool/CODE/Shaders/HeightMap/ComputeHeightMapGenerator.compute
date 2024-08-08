@@ -1,12 +1,16 @@
 #pragma kernel CSMain
+#pragma kernel CSRiversSources
+#pragma kernel CSRivers
 #pragma kernel CSNormal
 
 Texture2D<float> HeightInput;
 
 RWTexture2D<float> HeightOutput;
+RWTexture2D<float> RiversOutput;
 RWTexture2D<float4> NormalOutput;
 
 StructuredBuffer<float> HeightRemapData;
+StructuredBuffer<float> RiversSourcesData;
 
 float NoiseScale;
 int OctaveCount;
@@ -162,6 +166,22 @@ void CSMain (uint3 id : SV_DispatchThreadID)
     
     HeightOutput[id.xy] = height.x;
 }
+
+[numthreads(8, 8, 1)]
+void CSRiversSources(uint3 id : SV_DispatchThreadID)
+{
+    int3 ajustedId = floor(id / 32); //Get the id on the 64x64 grid from the id in a 2048x2048 grid
+    float value = RiversSourcesData[ajustedId.x + ajustedId.y * 64];
+    
+    RiversOutput[id.xy] = value;
+}
+
+[numthreads(8, 8, 1)]
+void CSRivers(uint3 id : SV_DispatchThreadID)
+{
+    
+}
+
 
 groupshared float tempHeight[8 * 3][8 * 3];
 
