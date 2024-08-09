@@ -59,7 +59,7 @@ public class HeightMapGenerator : MonoBehaviour
     public float NormalLimitation = 1.0f;
     [HideInInspector] public float AOIntensity = 0.0f;
 
-    [HideInInspector] public int[,] RiversSourcesTempBuffer = new int[64,64];
+    [HideInInspector] public float[] RiversSourcesTempBuffer = new float[4096];
 
     // Private var
     private RenderTexture _generatedTexture;
@@ -79,6 +79,8 @@ public class HeightMapGenerator : MonoBehaviour
     private const string SAVED_MODULE_FOLDER_PATH = "/DATA/Textures";
     private const string HEIGHT_MAP_NAME = "_HeightMap";
     private const string NORMAL_MAP_NAME = "_NormalMap";
+    private const string RIVERS_MAP_NAME = "_RiversMap";
+    private const int RIVERS_GRID_SIZE = 64;
 
 
 
@@ -122,7 +124,7 @@ public class HeightMapGenerator : MonoBehaviour
 
     public void InitGeneration(MeshRenderer renderer)
     {
-        InitRivers();
+        InitRivers(renderer);
 
         if (_generatedTexture != null)
             _generatedTexture.Release();
@@ -150,22 +152,24 @@ public class HeightMapGenerator : MonoBehaviour
         renderer.sharedMaterial.SetTexture(NORMAL_MAP_NAME, _normalTexture);
     }
 
-    private void InitRivers()
+    private void InitRivers(MeshRenderer renderer)
     {
         if (_riversTexture != null)
             _riversTexture.Release();
+        if(_riversSourcesData != null)
+            _riversSourcesData.Release();
 
         _riversTexture = new RenderTexture(TextureResolution, TextureResolution, 0, RenderTextureFormat.R16, RenderTextureReadWrite.Linear);
         _riversTexture.enableRandomWrite = true;
         _riversTexture.wrapMode = TextureWrapMode.Clamp;
         _riversTexture.Create();
 
-        _riversSourcesData = new ComputeBuffer(4096, 4);
+        _riversSourcesData = new ComputeBuffer(RIVERS_GRID_SIZE * RIVERS_GRID_SIZE, 4);
 
         _kernelRiversSources = TextureGenerator.FindKernel("CSRiversSources");
         _kernelRivers = TextureGenerator.FindKernel("CSRivers");
 
-        //set texture _riversTexture
+        renderer.sharedMaterial.SetTexture(RIVERS_MAP_NAME, _riversTexture);
     }
 
     private void UpdateHeightMap()
@@ -207,18 +211,11 @@ public class HeightMapGenerator : MonoBehaviour
 
     public void UpdateRiversSources()
     {
-        if(_riversSourcesData == null) { InitRivers(); }
+        InitRivers(this.transform.GetChild(0).GetComponent<MeshRenderer>());
+
         _riversSourcesData.SetData(RiversSourcesTempBuffer);
         TextureGenerator.SetBuffer(_kernelRiversSources, "RiversSourcesData", _riversSourcesData);
         TextureGenerator.SetTexture(_kernelRiversSources, "RiversOutput", _riversTexture);
-
-        for (int i = 0; i < 64; i++)
-        {
-            for (int j = 0; j < 64; j++)
-            {
-                Debug.Log(RiversSourcesTempBuffer[i, j]);
-            }
-        }
 
         TextureGenerator.Dispatch(_kernelRiversSources, TextureResolution / 8, TextureResolution / 8, 1);
     }

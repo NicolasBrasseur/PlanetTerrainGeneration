@@ -51,6 +51,9 @@ float hash(float2 p)
 #define Result_Difference 2
 #define Result_Average 3
 
+#define Rivers_Grid_Size 64
+#define Grid_To_Texture_Ratio 32
+
 float getVoronoiNoise(float2 p)
 {
     float2 iPos = floor(p);
@@ -170,8 +173,8 @@ void CSMain (uint3 id : SV_DispatchThreadID)
 [numthreads(8, 8, 1)]
 void CSRiversSources(uint3 id : SV_DispatchThreadID)
 {
-    int3 ajustedId = floor(id / 32); //Get the id on the 64x64 grid from the id in a 2048x2048 grid
-    float value = RiversSourcesData[ajustedId.x + ajustedId.y * 64];
+    int3 ajustedId = floor(id / Grid_To_Texture_Ratio); //Get the id on the 64x64 grid from the id in a 2048x2048 grid
+    float value = RiversSourcesData[ajustedId.x + ajustedId.y * Rivers_Grid_Size];
     
     RiversOutput[id.xy] = value;
 }

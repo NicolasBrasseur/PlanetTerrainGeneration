@@ -151,6 +151,8 @@ public class PlanetGenerationTool : EditorWindow
     private const string OCEAN_SPHERE_PATH = "Meshs/Sphere";
     private const string RINGS_MESH_PATH = "Meshs/RingsBothSide";
 
+    private const int RIVERS_WINDOW_GRID_SIZE = 64;
+
 
     #endregion
 
@@ -759,12 +761,14 @@ public class PlanetGenerationTool : EditorWindow
 
     public void ValidateRiversSources()
     {
-        int[,] tempBuffer = _heightMapGenerator.RiversSourcesTempBuffer;
+        float[] tempBuffer = new float[RIVERS_WINDOW_GRID_SIZE * RIVERS_WINDOW_GRID_SIZE];
+
         foreach(Vector2 sourcePosition in RiversSources)
         {
-            tempBuffer[(int)sourcePosition.x, (int)sourcePosition.y] = 1;
+            tempBuffer[(int)sourcePosition.x + (int)sourcePosition.y * RIVERS_WINDOW_GRID_SIZE] = 1;
         }
 
+        _heightMapGenerator.RiversSourcesTempBuffer = tempBuffer;
         _heightMapGenerator.UpdateRiversSources();
     }
 
@@ -1190,6 +1194,7 @@ public class PlanetGenerationTool : EditorWindow
                 if (GUILayout.Button("Clear all"))
                 {
                     RiversSources.Clear();
+                    ValidateRiversSources();
                 }
             }
         }

@@ -89,6 +89,9 @@
         },
         {
             "m_Id": "4cdf35fbda5349a79b4e4f714b13d8ea"
+        },
+        {
+            "m_Id": "0be3e164da4c4b91b3bfa2ac4d4d271f"
         }
     ],
     "m_Keywords": [],
@@ -2588,6 +2591,36 @@
     "m_CustomColors": {
         "m_SerializableColors": []
     }
+}
+
+{
+    "m_SGVersion": 0,
+    "m_Type": "UnityEditor.ShaderGraph.Internal.Texture2DShaderProperty",
+    "m_ObjectId": "0be3e164da4c4b91b3bfa2ac4d4d271f",
+    "m_Guid": {
+        "m_GuidSerialized": "d9dcfab8-e83f-4a12-a1da-893ef814819d"
+    },
+    "m_Name": "RiversMap",
+    "m_DefaultRefNameVersion": 1,
+    "m_RefNameGeneratedByDisplayName": "RiversMap",
+    "m_DefaultReferenceName": "_RiversMap",
+    "m_OverrideReferenceName": "",
+    "m_GeneratePropertyBlock": true,
+    "m_UseCustomSlotLabel": false,
+    "m_CustomSlotLabel": "",
+    "m_DismissedVersion": 0,
+    "m_Precision": 0,
+    "overrideHLSLDeclaration": false,
+    "hlslDeclarationOverride": 0,
+    "m_Hidden": false,
+    "m_Value": {
+        "m_SerializedTexture": "{\"texture\":{\"instanceID\":0}}",
+        "m_Guid": ""
+    },
+    "isMainTexture": false,
+    "useTilingAndOffset": false,
+    "m_Modifiable": true,
+    "m_DefaultType": 0
 }
 
 {
@@ -7180,6 +7213,9 @@
         },
         {
             "m_Id": "40fb6a77af3d4e089878894dc7a97e53"
+        },
+        {
+            "m_Id": "0be3e164da4c4b91b3bfa2ac4d4d271f"
         },
         {
             "m_Id": "13ed5d17f755415d8bc3c43467eba67b"
