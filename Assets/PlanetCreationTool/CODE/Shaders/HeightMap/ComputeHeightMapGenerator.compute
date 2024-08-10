@@ -6,7 +6,7 @@
 Texture2D<float> HeightInput;
 
 RWTexture2D<float> HeightOutput;
-RWTexture2D<float> RiversOutput;
+RWTexture2D<float> RiversMap;
 RWTexture2D<float4> NormalOutput;
 
 StructuredBuffer<float> HeightRemapData;
@@ -176,7 +176,7 @@ void CSRiversSources(uint3 id : SV_DispatchThreadID)
     int3 ajustedId = floor(id / Grid_To_Texture_Ratio); //Get the id on the 64x64 grid from the id in a 2048x2048 grid
     float value = RiversSourcesData[ajustedId.x + ajustedId.y * Rivers_Grid_Size];
     
-    RiversOutput[id.xy] = value;
+    RiversMap[id.xy] = value;
 }
 
 [numthreads(8, 8, 1)]

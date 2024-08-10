@@ -7,8 +7,8 @@ using UnityEngine;
 [SelectionBase]
 public class PlanetShapeGenerator : MonoBehaviour
 {
-    [Range(1, 250)][SerializeField] private int _resolution = 1;
-    [Range(0.1f, 10f)][SerializeField] private float _size = 1;
+    //[Range(1, 250)][SerializeField] private int _resolution = 1;
+    //[Range(0.1f, 10f)][SerializeField] private float _size = 1;
 
     private Vector3[] _directions =
     {

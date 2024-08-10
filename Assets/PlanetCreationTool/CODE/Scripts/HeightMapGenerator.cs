@@ -15,6 +15,7 @@ public class HeightMapGenerator : MonoBehaviour
     public ComputeShader TextureGenerator;
     [Space(5)]
     public bool UpdateData = false;
+    public bool isRiversInitialized = false;
 
     public enum NoiseType
     {
@@ -86,16 +87,24 @@ public class HeightMapGenerator : MonoBehaviour
 
     private void OnEnable()
     {
+#if UNITY_EDITOR
         EditorSceneManager.sceneSaving += OnSavingScene;
+        AssemblyReloadEvents.beforeAssemblyReload += ReleaseBuffers;
+#endif
     }
 
     private void OnDisable()
     {
+#if UNITY_EDITOR
         EditorSceneManager.sceneSaving -= OnSavingScene;
+        AssemblyReloadEvents.beforeAssemblyReload -= ReleaseBuffers;
+#endif
+        ReleaseBuffers();
     }
 
     private void Start()
     {
+        isRiversInitialized = false;
         InitGeneration(this.transform.GetChild(0).GetComponent<MeshRenderer>());
         UpdateHeightMap();
     }
@@ -114,6 +123,8 @@ public class HeightMapGenerator : MonoBehaviour
             InitGeneration(this.transform.GetChild(0).GetComponent<MeshRenderer>());
             UpdateData = false;
         }
+
+        UpdateRivers();
     }
 
     public void UpdateTerrain()
@@ -170,6 +181,8 @@ public class HeightMapGenerator : MonoBehaviour
         _kernelRivers = TextureGenerator.FindKernel("CSRivers");
 
         renderer.sharedMaterial.SetTexture(RIVERS_MAP_NAME, _riversTexture);
+
+        isRiversInitialized = true;
     }
 
     private void UpdateHeightMap()
@@ -215,14 +228,18 @@ public class HeightMapGenerator : MonoBehaviour
 
         _riversSourcesData.SetData(RiversSourcesTempBuffer);
         TextureGenerator.SetBuffer(_kernelRiversSources, "RiversSourcesData", _riversSourcesData);
-        TextureGenerator.SetTexture(_kernelRiversSources, "RiversOutput", _riversTexture);
+        TextureGenerator.SetTexture(_kernelRiversSources, "RiversMap", _riversTexture);
 
         TextureGenerator.Dispatch(_kernelRiversSources, TextureResolution / 8, TextureResolution / 8, 1);
     }
 
     private void UpdateRivers()
     {
+        if(!isRiversInitialized) { InitRivers(this.transform.GetChild(0).GetComponent<MeshRenderer>()); }
+        if(_riversTexture == null) { Debug.LogWarning("The rivers texture wasn't initalized"); return; }
 
+        TextureGenerator.SetTexture(_kernelRivers, "RiversMap", _riversTexture);
+        TextureGenerator.Dispatch(_kernelRivers, TextureResolution / 8, TextureResolution / 8, 1);
     }
 
     public Texture2D GetHeightMap()
@@ -262,5 +279,13 @@ public class HeightMapGenerator : MonoBehaviour
         targetTexture.Apply();
 
         return targetTexture;
+    }
+
+    private void ReleaseBuffers()
+    {
+        if (_heightRemapData != null)
+            _heightRemapData.Release();
+        if (_riversSourcesData != null)
+            _riversSourcesData.Release();
     }
 }
