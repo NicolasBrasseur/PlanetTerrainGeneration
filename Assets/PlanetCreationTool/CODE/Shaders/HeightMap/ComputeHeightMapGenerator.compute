@@ -53,6 +53,10 @@ float hash(float2 p)
 
 #define Rivers_Grid_Size 64
 #define Grid_To_Texture_Ratio 32
+#define Source_Size 1
+
+#define Downhill_Flow_Multiplier 1.5f
+#define Uphill_Flow_Multiplier 100
 
 float getVoronoiNoise(float2 p)
 {
@@ -173,16 +177,60 @@ void CSMain (uint3 id : SV_DispatchThreadID)
 [numthreads(8, 8, 1)]
 void CSRiversSources(uint3 id : SV_DispatchThreadID)
 {
-    int3 ajustedId = floor(id / Grid_To_Texture_Ratio); //Get the id on the 64x64 grid from the id in a 2048x2048 grid
-    float value = RiversSourcesData[ajustedId.x + ajustedId.y * Rivers_Grid_Size];
+    float2 localpositionInCell = frac((float) id.xy / (float)Grid_To_Texture_Ratio);
+    float value;
+    float centerZoneSize = (1 / (Grid_To_Texture_Ratio / 2)) * Source_Size;
+    
+    if (localpositionInCell.x >= (0.5f - centerZoneSize) && localpositionInCell.x <= (0.5f + centerZoneSize) &&
+        localpositionInCell.y >= (0.5f - centerZoneSize) && localpositionInCell.y <= (0.5f + centerZoneSize))
+    {
+        int3 ajustedId = floor(id / Grid_To_Texture_Ratio); //Get the id on the 64x64 grid from the id in a 2048x2048 grid
+        value = RiversSourcesData[ajustedId.x + (63 - ajustedId.y) * Rivers_Grid_Size];
+    }
+    else
+    {
+        value = 0;
+    }
     
     RiversMap[id.xy] = value;
 }
 
 [numthreads(8, 8, 1)]
-void CSRivers(uint3 id : SV_DispatchThreadID)
+void CSRivers(uint3 threadId : SV_DispatchThreadID)
 {
+    uint2 id = threadId.xy;
+    uint2 id_up = id + uint2(0, 1);
+    uint2 id_down = id + uint2(0, -1);
+    uint2 id_left = id + uint2(-1, 0);
+    uint2 id_right = id + uint2(1, 0);
     
+    uint2 allNeighbours[4] = { id_up, id_down, id_left, id_right };
+    
+    float cellHeight = HeightInput[id];
+    float flow = RiversMap[id];
+    
+    for (int i = 0; i < 4; i++)
+    {
+        uint2 testedId = allNeighbours[i];
+        float testedHeight = HeightInput[testedId];
+        
+        float heightVariation = cellHeight - testedHeight;
+        float flowModifier = 0;
+        if (heightVariation >= 0)
+        {
+            flowModifier = lerp(heightVariation, 1, max(Downhill_Flow_Multiplier, 1));
+        }
+        else
+        {
+            flowModifier = 1 / lerp(abs(heightVariation), 1, max(Uphill_Flow_Multiplier, 1));
+        }
+        
+        float neighborOriginalFlow = RiversMap[testedId];
+        float neighborFlow = max(neighborOriginalFlow, flow * flowModifier);
+        
+        RiversMap[testedId] = neighborFlow;
+
+    }
 }
 
 

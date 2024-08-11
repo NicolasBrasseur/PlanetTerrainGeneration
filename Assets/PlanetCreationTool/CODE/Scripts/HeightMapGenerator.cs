@@ -172,6 +172,7 @@ public class HeightMapGenerator : MonoBehaviour
 
         _riversTexture = new RenderTexture(TextureResolution, TextureResolution, 0, RenderTextureFormat.R16, RenderTextureReadWrite.Linear);
         _riversTexture.enableRandomWrite = true;
+        _riversTexture.filterMode = FilterMode.Point;
         _riversTexture.wrapMode = TextureWrapMode.Clamp;
         _riversTexture.Create();
 
@@ -239,12 +240,18 @@ public class HeightMapGenerator : MonoBehaviour
         if(_riversTexture == null) { Debug.LogWarning("The rivers texture wasn't initalized"); return; }
 
         TextureGenerator.SetTexture(_kernelRivers, "RiversMap", _riversTexture);
+        TextureGenerator.SetTexture(_kernelRivers, "HeightInput", _generatedTexture);
         TextureGenerator.Dispatch(_kernelRivers, TextureResolution / 8, TextureResolution / 8, 1);
     }
 
     public Texture2D GetHeightMap()
     {
-        return RenderTextureToTexture2D(_generatedTexture);
+        return RenderTextureToTexture2D(_generatedTexture, FilterMode.Bilinear);
+    }
+
+    public Texture2D GetRiversMap()
+    {
+        return RenderTextureToTexture2D(_riversTexture, FilterMode.Point);
     }
 
     public void ExportAllTextures()
@@ -257,7 +264,7 @@ public class HeightMapGenerator : MonoBehaviour
     //https://stackoverflow.com/questions/44264468/convert-rendertexture-to-texture2d
     private void ExportTexture(RenderTexture source, string name)
     {
-        Texture2D exportTexture = RenderTextureToTexture2D(source);
+        Texture2D exportTexture = RenderTextureToTexture2D(source, FilterMode.Bilinear);
 
         byte[] bytes = exportTexture.EncodeToPNG();
         var dirPath = Application.dataPath + "/SaveImages/";
@@ -270,9 +277,10 @@ public class HeightMapGenerator : MonoBehaviour
         Debug.Log($"Exported {name} at this location : {dirPath}");
     }
 
-    private Texture2D RenderTextureToTexture2D(RenderTexture source)
+    private Texture2D RenderTextureToTexture2D(RenderTexture source, FilterMode filterMode)
     {
         Texture2D targetTexture = new Texture2D(source.width, source.height, TextureFormat.RGB24, false);
+        targetTexture.filterMode = filterMode;
         // ReadPixels looks at the active RenderTexture.
         RenderTexture.active = source;
         targetTexture.ReadPixels(new Rect(0, 0, source.width, source.height), 0, 0);

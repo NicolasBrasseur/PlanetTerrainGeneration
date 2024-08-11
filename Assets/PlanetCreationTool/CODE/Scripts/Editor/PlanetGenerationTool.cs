@@ -759,7 +759,7 @@ public class PlanetGenerationTool : EditorWindow
         _ringsTexture = _importedPlanetData.RingsTexture;
     }
 
-    public void ValidateRiversSources()
+    public void ValidateRiversSources(SelectOnMapWindow selectionWindow = null)
     {
         float[] tempBuffer = new float[RIVERS_WINDOW_GRID_SIZE * RIVERS_WINDOW_GRID_SIZE];
 
@@ -770,6 +770,13 @@ public class PlanetGenerationTool : EditorWindow
 
         _heightMapGenerator.RiversSourcesTempBuffer = tempBuffer;
         _heightMapGenerator.UpdateRiversSources();
+
+        if (selectionWindow != null) { selectionWindow.RiversMap = _heightMapGenerator.GetRiversMap(); }
+    }
+
+    public void UpdateRiversVisualization(SelectOnMapWindow selectionWindow)
+    {
+        selectionWindow.RiversMap = _heightMapGenerator.GetRiversMap();
     }
 
     #endregion
@@ -1168,6 +1175,7 @@ public class PlanetGenerationTool : EditorWindow
                     selectionWindow.LinkedWindow = this;
                     selectionWindow.LinkedWindowScript = this;
                     selectionWindow.HeightMap = _heightMapGenerator.GetHeightMap();
+                    selectionWindow.RiversMap = _heightMapGenerator.GetRiversMap();
                     selectionWindow.SetupGrid();
 
                     selectionWindow.Show();

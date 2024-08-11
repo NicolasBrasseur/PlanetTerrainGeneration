@@ -14,6 +14,7 @@ public class SelectOnMapWindow : EditorWindow
     public EditorWindow LinkedWindow;
     public PlanetGenerationTool LinkedWindowScript;
     public Texture HeightMap;
+    public Texture RiversMap;
 
     // Private
     private Vector2 _scrollPosition;
@@ -43,7 +44,8 @@ public class SelectOnMapWindow : EditorWindow
 
         SectionTitle("Select a river source location");
 
-        EditorGUI.DrawPreviewTexture(new Rect(0, SELECTION_AREA_TOP_MARGIN, 512, 512), HeightMap); //GUILayout.Label(HeightMap);
+        EditorGUI.DrawPreviewTexture(new Rect(0, SELECTION_AREA_TOP_MARGIN, 512, 512), HeightMap);
+        EditorGUI.DrawPreviewTexture(new Rect(0, SELECTION_AREA_TOP_MARGIN, 512, 512), RiversMap); //GUILayout.Label(HeightMap);
 
         GUILayout.Space(TEXTURE_SIZE + TOP_MARGIN);
 
@@ -73,6 +75,12 @@ public class SelectOnMapWindow : EditorWindow
         }
 
         ScrollAndMarginsEnd();
+    }
+
+    private void Update()
+    {
+        UpdateVisualization();
+        Repaint();
     }
 
     public void SetupGrid()
@@ -135,7 +143,12 @@ public class SelectOnMapWindow : EditorWindow
         }
 
         LinkedWindowScript.RiversSources = sourcesList;
-        LinkedWindowScript.ValidateRiversSources();
+        LinkedWindowScript.ValidateRiversSources(this);
+    }
+
+    private void UpdateVisualization()
+    {
+        LinkedWindowScript.UpdateRiversVisualization(this);
     }
 
     void SectionTitle(string title)
