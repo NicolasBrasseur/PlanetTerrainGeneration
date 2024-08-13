@@ -6,7 +6,6 @@ using UnityEditor.UIElements;
 using UnityEditor.Callbacks;
 using System.Linq;
 using UnityEngine.UIElements;
-using UnityEngine.Rendering;
 
 public class SelectOnMapWindow : EditorWindow
 {
@@ -20,6 +19,9 @@ public class SelectOnMapWindow : EditorWindow
     private Vector2 _scrollPosition;
     private VisualElement _gridElement;
     private Dictionary<Vector2, bool> _temporarySourcesChanges = new Dictionary<Vector2, bool>();
+    private Shader _combineTexturesShader;
+    private Material _combineTexturesMaterial;
+    private RenderTexture _combinedPreviewTexture;
 
     // Consts
     private const int TOP_MARGIN = 20;
@@ -28,6 +30,9 @@ public class SelectOnMapWindow : EditorWindow
     private const int LEFT_AND_RIGHT_MARGINS = 10;
     private const int CELL_SIZE = 8;
     private const int TEXTURE_SIZE = 512;
+    private const string COMBINE_TEXTURES_SHADER = "CombineTextures";
+
+    #region Custom GUI
 
     private void CreateGUI()
     {
@@ -44,12 +49,11 @@ public class SelectOnMapWindow : EditorWindow
 
         SectionTitle("Select a river source location");
 
-        EditorGUI.DrawPreviewTexture(new Rect(0, SELECTION_AREA_TOP_MARGIN, 512, 512), HeightMap);
-        EditorGUI.DrawPreviewTexture(new Rect(0, SELECTION_AREA_TOP_MARGIN, 512, 512), RiversMap); //GUILayout.Label(HeightMap);
+        DrawPreviewTexture();
 
         GUILayout.Space(TEXTURE_SIZE + TOP_MARGIN);
 
-        if(_temporarySourcesChanges.Count > 0)
+        if (_temporarySourcesChanges.Count > 0)
         {
             if (GUILayout.Button("Validate"))
             {
@@ -77,11 +81,20 @@ public class SelectOnMapWindow : EditorWindow
         ScrollAndMarginsEnd();
     }
 
+    #endregion
+
+    private void OnEnable()
+    {
+        InitCombineTexture();
+    }
+
     private void Update()
     {
         UpdateVisualization();
         Repaint();
     }
+
+    #region Custom methods
 
     public void SetupGrid()
     {
@@ -90,7 +103,7 @@ public class SelectOnMapWindow : EditorWindow
 
         HashSet<Vector2> temporarySourcesList = new HashSet<Vector2>();
 
-        if(LinkedWindowScript.RiversSources != null)
+        if (LinkedWindowScript.RiversSources != null)
         {
             foreach (var element in LinkedWindowScript.RiversSources)
             {
@@ -116,9 +129,9 @@ public class SelectOnMapWindow : EditorWindow
     {
         Vector2 cellPosition = new Vector2(x, y);
 
-        if(_temporarySourcesChanges.ContainsKey(cellPosition)) { _temporarySourcesChanges.Remove(cellPosition); }
+        if (_temporarySourcesChanges.ContainsKey(cellPosition)) { _temporarySourcesChanges.Remove(cellPosition); }
 
-        if(!isPressed) { return; }
+        if (!isPressed) { return; }
 
         bool isAnAddition = !isActive;
         _temporarySourcesChanges.Add(cellPosition, isAnAddition);
@@ -130,7 +143,7 @@ public class SelectOnMapWindow : EditorWindow
 
         foreach (var cell in _temporarySourcesChanges)
         {
-            if(cell.Value) //Value contains the operation needed (addition or removal of a source)
+            if (cell.Value) //Value contains the operation needed (addition or removal of a source)
             {
                 //Add source
                 sourcesList.Add(cell.Key);
@@ -172,6 +185,34 @@ public class SelectOnMapWindow : EditorWindow
         GUILayout.EndArea();
     }
 
+    void InitCombineTexture()
+    {
+        _combineTexturesShader = Resources.Load<Shader>(COMBINE_TEXTURES_SHADER);
+        _combineTexturesMaterial = new Material(_combineTexturesShader);
+        _combinedPreviewTexture = new RenderTexture(2048, 2048, 0, RenderTextureFormat.ARGB32, RenderTextureReadWrite.Linear);
+    }
+
+    void DrawPreviewTexture()
+    {
+        if(_combineTexturesMaterial == null || _combinedPreviewTexture == null) { InitCombineTexture(); }
+
+        _combineTexturesMaterial.SetTexture("_HeightMap", HeightMap);
+        _combineTexturesMaterial.SetTexture("_RiversMap", RiversMap);
+        _combineTexturesMaterial.SetColor("_RiversColor", Color.blue);
+
+        RenderTexture windowRenderTexture = RenderTexture.active;
+
+        Graphics.Blit(null, _combinedPreviewTexture, _combineTexturesMaterial, 0);
+        RenderTexture.active = windowRenderTexture;
+
+        EditorGUI.DrawPreviewTexture(new Rect(0, SELECTION_AREA_TOP_MARGIN, 512, 512), _combinedPreviewTexture);
+
+        //EditorGUI.DrawPreviewTexture(new Rect(0, SELECTION_AREA_TOP_MARGIN, 512, 512), HeightMap);
+        //EditorGUI.DrawPreviewTexture(new Rect(0, SELECTION_AREA_TOP_MARGIN, 512, 512), RiversMap);
+    }
+
+    #endregion
+
     // -------------- Cell Class -----------------
 
     public class Cell : Button
@@ -206,10 +247,41 @@ public class SelectOnMapWindow : EditorWindow
 
         private void UpdateGridStyle()
         {
-            if(isPressed && !isActive) { style.backgroundColor = Color.green; }
+            style.borderBottomLeftRadius = 10;
+            style.borderBottomRightRadius = 10;
+            style.borderTopLeftRadius = 10;
+            style.borderTopRightRadius = 10;
+
+            style.borderBottomWidth = 1;
+            style.borderLeftWidth = 1;
+            style.borderTopWidth = 1;
+            style.borderRightWidth = 1;
+
+            style.borderBottomColor = Color.black;
+            style.borderLeftColor = Color.black;
+            style.borderRightColor = Color.black;
+            style.borderTopColor = Color.black;
+
+            if (isPressed && !isActive) { style.backgroundColor = Color.green; }
             else if(isPressed && isActive) { style.backgroundColor = Color.red; }
-            else if(!isPressed && isActive) { style.backgroundColor = Color.blue; }
-            else { style.backgroundColor = Color.clear; }
+            else if(!isPressed && isActive)
+            {
+                style.backgroundColor = (Color)new Vector4(0,0,1,1.0f);
+            }
+            else 
+            {
+                style.backgroundColor = Color.clear;
+
+                style.borderBottomLeftRadius = 0;
+                style.borderBottomRightRadius = 0;
+                style.borderTopLeftRadius = 0;
+                style.borderTopRightRadius = 0;
+
+                style.borderBottomWidth = 0;
+                style.borderLeftWidth = 0;
+                style.borderTopWidth = 0;
+                style.borderRightWidth = 0;
+            }
 
             style.position = Position.Absolute;
             style.left = x * CELL_SIZE + LEFT_AND_RIGHT_MARGINS;
@@ -227,16 +299,6 @@ public class SelectOnMapWindow : EditorWindow
             style.paddingLeft = 0;
             style.paddingRight = 0;
             style.paddingTop = 0;
-
-            style.borderBottomLeftRadius = 0;
-            style.borderBottomRightRadius = 0;
-            style.borderTopLeftRadius = 0;
-            style.borderTopRightRadius = 0;
-
-            style.borderBottomWidth = 0;
-            style.borderLeftWidth = 0;
-            style.borderTopWidth = 0;
-            style.borderRightWidth = 0;
 
             style.opacity = 1f;
         }
