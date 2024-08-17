@@ -54,20 +54,17 @@ public class FlyCam : MonoBehaviour
 		transform.Translate(strafe, updown, forward);
 #endif
 #if UNITY_STANDALONE
-		if (Input.GetAxis("Fire1") == 1)
-		{
-			//a=a+b <=> a+=b
-			rot += Input.GetAxis("Mouse X") * rotSpeed * Time.deltaTime;
-			tilt -= Input.GetAxis("Mouse Y") * tiltSpeed * Time.deltaTime;
-		}
-		rot += Input.GetAxis("RstickH") * rotSpeed * Time.deltaTime;
-		tilt += Input.GetAxis("RstickV") * tiltSpeed * Time.deltaTime;
-		transform.eulerAngles = new Vector3(tilt, rot, 0.0f);
+		rot += Input.GetAxis("Mouse X") * rotSpeed * Time.deltaTime;
+        tilt -= Input.GetAxis("Mouse Y") * tiltSpeed * Time.deltaTime;
+        rot += Input.GetAxis("RstickH") * rotSpeed * Time.deltaTime;
+        tilt += Input.GetAxis("RstickV") * tiltSpeed * Time.deltaTime;
+        tilt = Mathf.Clamp(tilt, -90, 90);
+        transform.eulerAngles = new Vector3(tilt, rot, 0.0f);
 
-		forward = Input.GetAxis("Vertical") * forwardSpeed * Time.deltaTime;
-		strafe = Input.GetAxis("Horizontal") * strafeSpeed * Time.deltaTime;
-		updown = Input.GetAxis("UpDown") * updownSpeed * Time.deltaTime;
-		transform.Translate(strafe, updown, forward);
+        forward = Input.GetAxis("Vertical") * forwardSpeed * Time.deltaTime;
+        strafe = Input.GetAxis("Horizontal") * strafeSpeed * Time.deltaTime;
+        updown = Input.GetAxis("UpDown") * updownSpeed * Time.deltaTime;
+        transform.Translate(strafe, updown, forward);
 #endif
 #endif
     }

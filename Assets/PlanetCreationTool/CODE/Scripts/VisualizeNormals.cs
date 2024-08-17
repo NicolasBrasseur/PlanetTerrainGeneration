@@ -4,6 +4,7 @@ using UnityEngine;
 //https://gist.github.com/mandarinx/ed733369fbb2eea6c7fa9e3da65a0e17
 public class VisualizeNormals : MonoBehaviour
 {
+#if UNITY_EDITOR
     public bool isShowNormal;
     public Color color = Color.yellow;
     public float normalsLength = 1f;
@@ -31,4 +32,5 @@ public class VisualizeNormals : MonoBehaviour
 
         Handles.color = defaultColor;
     }
+#endif
 }

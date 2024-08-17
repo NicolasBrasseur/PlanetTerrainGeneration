@@ -1,11 +1,11 @@
 using System.Collections;
 using System.Collections.Generic;
 using UnityEditor;
-using UnityEditor.AssetImporters;
+#if UNITY_EDITOR
 using UnityEditor.SceneManagement;
+#endif
 using UnityEngine;
 using System.IO;
-using static Unity.VisualScripting.Member;
 
 [ExecuteInEditMode]
 

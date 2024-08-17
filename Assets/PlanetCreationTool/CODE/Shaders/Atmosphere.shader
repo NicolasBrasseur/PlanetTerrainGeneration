@@ -84,7 +84,8 @@ Shader "Custom/Atmosphere"
 
             v2f vert(vertData v)
             {
-                v2f o;
+                v2f o = (v2f)0;
+
                 o.pos = TransformObjectToHClip(v.pos.xyz);
                 o.N = -mul((float3x3)unity_ObjectToWorld, v.normal);
                 o.wPos = mul(unity_ObjectToWorld, v.pos).xyz;
@@ -118,7 +119,7 @@ Shader "Custom/Atmosphere"
 
                 float4 o;
 
-                float thickness = pow(rsi.y - rsi.x, _DensityPower) * _Density * pow(10, -_DensityPower);
+                float thickness = pow(max(0, rsi.y - rsi.x), (_DensityPower)) * (_Density / (_Radius * _Radius)) * pow(10, -_DensityPower);
                 float exposition = saturate((dot(frontNormalDirection, lightDirection) + dot(backNormalDirection, lightDirection) + _LightingRadius));
                 float lightedDensity = max(thickness * exposition, 0.0);
 

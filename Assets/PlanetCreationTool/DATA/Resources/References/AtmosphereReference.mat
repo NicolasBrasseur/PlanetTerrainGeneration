@@ -29,14 +29,14 @@ Material:
         m_Offset: {x: 0, y: 0}
     m_Ints: []
     m_Floats:
-    - _Density: 0.15
+    - _Density: 175
     - _DensityPower: 4
     - _Glossiness: 0.5
     - _LightingRadius: 1
     - _Metallic: 0
     - _Minus: 69
     - _PlanetVisibility: 7
-    - _Radius: 4
+    - _Radius: 9
     m_Colors:
     - _BaseColor: {r: 0.41438234, g: 0.8285775, b: 0.9056604, a: 1}
     - _Color: {r: 1, g: 1, b: 1, a: 1}
