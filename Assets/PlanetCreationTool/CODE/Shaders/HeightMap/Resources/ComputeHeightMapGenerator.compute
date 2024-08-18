@@ -208,6 +208,14 @@ void CSRivers(uint3 threadId : SV_DispatchThreadID)
     
     float cellHeight = HeightInput[id];
     float flow = RiversMap[id];
+    uint2 lowestNeighbourId;
+    float highestHeightVariation = 0;
+    bool canFlow = false;
+    
+    if (RiversMap[id] < 0.1f)
+    {
+        return;
+    }
     
     for (int i = 0; i < 4; i++)
     {
@@ -215,6 +223,18 @@ void CSRivers(uint3 threadId : SV_DispatchThreadID)
         float testedHeight = HeightInput[testedId];
         
         float heightVariation = cellHeight - testedHeight;
+        if (heightVariation > highestHeightVariation)
+        {
+            highestHeightVariation = heightVariation;
+            lowestNeighbourId = testedId;
+            canFlow = true;
+        }
+        
+        
+        
+        
+        //Old calculation
+        /*
         float flowModifier = 0;
         if (heightVariation >= 0)
         {
@@ -229,7 +249,29 @@ void CSRivers(uint3 threadId : SV_DispatchThreadID)
         float neighborFlow = max(neighborOriginalFlow, flow * flowModifier);
         
         RiversMap[testedId] = neighborFlow;
+        */
 
+    }
+    
+    //RiversMap[id] = 0.0f;
+    
+    
+    if (canFlow)
+    {
+        float newFlow = RiversMap[id] - 0.1f;
+        if (RiversMap[id] <= 0.2f && RiversMap[id] >= 0.1f)
+        {
+            newFlow = 1.0f;
+        }
+        RiversMap[lowestNeighbourId] = max(RiversMap[lowestNeighbourId], newFlow);
+    }
+    else
+    {
+        //RiversMap[id] = 2.0f;
+        RiversMap[id_up] = 1.0f;
+        RiversMap[id_down] = 1.0f;
+        RiversMap[id_left] = 1.0f;
+        RiversMap[id_right] = 1.0f;
     }
 }
 
