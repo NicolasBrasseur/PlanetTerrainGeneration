@@ -58,7 +58,7 @@ MonoBehaviour:
     m_PreInfinity: 2
     m_PostInfinity: 2
     m_RotationOrder: 4
-  NoiseScale: 127.3
+  NoiseScale: 130
   NoiseGain: 2
   NoiseLacunarity: 0.5
   DetailsIntensity: 3
@@ -78,21 +78,21 @@ MonoBehaviour:
   TerrainTextureSmoothness02: 0
   TerrainTextureSmoothness03: 0
   TerrainTextureSmoothness04: 0
-  TerrainTexturesSeparationSmoothness: 0.008
-  TerrainTexture02Height: 0.511
+  TerrainTexturesSeparationSmoothness: 0.006
+  TerrainTexture02Height: 0.501
   TerrainTexture03Height: 0.547
   TerrainTexture04Height: 0.666
   HasAtmosphere: 1
-  AtmosphereMainColor: {r: 0.4143818, g: 0.8285775, b: 0.9056604, a: 1}
-  AtmosphereHorizonColor: {r: 0.9254902, g: 0.60031027, b: 0.2823524, a: 1}
+  AtmosphereMainColor: {r: 0.41438228, g: 0.8285775, b: 0.9056604, a: 1}
+  AtmosphereHorizonColor: {r: 0.9254902, g: 0.60031027, b: 0.28235286, a: 1}
   AtmosphereRadius: 9
-  AtmosphereDensity: 175
+  AtmosphereDensity: 174
   AtmosphereEdgeSmoothness: 4
   AtmosphereLightingDistance: 1
   AtmospherePlanetVisibilityModifier: 7
   HasOcean: 1
   OceanHeight: 0
-  OceanColor: {r: 0.0043609855, g: 0.0203253, b: 0.13207415, a: 0}
+  OceanColor: {r: 0.0043609855, g: 0.0203253, b: 0.13207546, a: 0}
   OceanTexture: {fileID: 0}
   OceanNormalTexture: {fileID: 2800000, guid: 9399037e36fc91343b0134fcbc249d43, type: 3}
   OceanTextureTilling: 30

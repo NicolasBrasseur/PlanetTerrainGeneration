@@ -1,11 +1,9 @@
 using System.Collections;
 using System.Collections.Generic;
-using System.Configuration;
 using UnityEditor;
-using UnityEditor.Compilation;
 using UnityEngine;
-using UnityEngine.Rendering;
 
+[InitializeOnLoad]
 public class PlanetGenerationTool : EditorWindow
 {
     #region Variables setup
@@ -95,8 +93,8 @@ public class PlanetGenerationTool : EditorWindow
     private bool _hasOcean;
     private float _oceanHeight = 0;
     private Color _oceanColor;
-    private Texture _oceanTexture;
-    private Texture _oceanNormalTexture;
+    private Texture2D _oceanTexture;
+    private Texture2D _oceanNormalTexture;
     private float _oceanTextureTilling = 1.0f;
     private float _oceanSmoothness = 0.5f;
     private float _oceanMetalness = 0.0f;
@@ -157,6 +155,31 @@ public class PlanetGenerationTool : EditorWindow
     #endregion
 
     #region Unity Methods
+    static PlanetGenerationTool()
+    {
+        EditorApplication.update += ExecuteAtLaunch;
+    }
+
+    static void ExecuteAtLaunch()
+    {
+        //Execute at application launch
+        if (!EditorApplication.isPlayingOrWillChangePlaymode)
+        {
+            PlanetGenerationTool generationTool = ScriptableObject.CreateInstance<PlanetGenerationTool>();
+
+            GameObject[] planetsObject = GameObject.FindGameObjectsWithTag(PLANET_TAG);
+            if (planetsObject.Length <= 0) { EditorApplication.update -= ExecuteAtLaunch; return; }
+
+            foreach (GameObject planet in planetsObject)
+            {
+                generationTool.UpdateSelection(planet);
+                generationTool.SetParameters();
+            }
+
+        }
+
+        EditorApplication.update -= ExecuteAtLaunch;
+    }
 
     private void OnEnable()
     {
@@ -169,6 +192,7 @@ public class PlanetGenerationTool : EditorWindow
         SaveData();
         AssetDatabase.SaveAssets();
     }
+
 
     private void OnSelectionChange()
     {
@@ -233,7 +257,7 @@ public class PlanetGenerationTool : EditorWindow
         Repaint();
     }
 
-    void UpdateSelection(GameObject newSelectedPlanet)
+    public void UpdateSelection(GameObject newSelectedPlanet)
     {
         _selectedPlanet = newSelectedPlanet;
         _allowNavigation = true;
@@ -476,13 +500,24 @@ public class PlanetGenerationTool : EditorWindow
         _displayedSize = _planetSize;
         _planetResolution = planetData.PlanetResolution;
 
+        /*
         _seed = _heightMapGenerator.Seed;
         _heightRemap = _heightMapGenerator.heightRemap;
         _noiseScale = _heightMapGenerator.NoiseScale;
+        _noiseScale = planetData.NoiseScale;
         _noiseGain = _heightMapGenerator.NoiseGain;
         _noiseLacunarity = _heightMapGenerator.NoiseLacunarity;
         _detailsIntensity = _heightMapGenerator.NormalIntensity;
+        */
 
+        _seed = planetData.Seed;
+        _heightRemap = planetData.HeightRemap;
+        _noiseScale = planetData.NoiseScale;
+        _noiseGain = planetData.NoiseGain;
+        _noiseLacunarity = planetData.NoiseLacunarity;
+        _detailsIntensity = planetData.DetailsIntensity;
+
+        /*
         _mountainsHeight = _selectedTerrainMaterial.GetFloat("_DisplacementIntensity");
         _terrainTexture01 = _selectedTerrainMaterial.GetTexture("_Texture01");
         _terrainTexture02 = _selectedTerrainMaterial.GetTexture("_Texture02");
@@ -504,8 +539,32 @@ public class PlanetGenerationTool : EditorWindow
         _terrainTexture02Height = _selectedTerrainMaterial.GetFloat("_Texture02Height");
         _terrainTexture03Height = _selectedTerrainMaterial.GetFloat("_Texture03Height");
         _terrainTexture04Height = _selectedTerrainMaterial.GetFloat("_Texture04Height");
+        */
+
+        _mountainsHeight = planetData.MountainsHeight;
+        _terrainTexture01 = planetData.TerrainTexture01;
+        _terrainTexture02 = planetData.TerrainTexture02;
+        _terrainTexture03 = planetData.TerrainTexture03;
+        _terrainTexture04 = planetData.TerrainTexture04;
+        _terrainTextureColor01 = planetData.TerrainTextureColor01;
+        _terrainTextureColor02 = planetData.TerrainTextureColor02;
+        _terrainTextureColor03 = planetData.TerrainTextureColor03;
+        _terrainTextureColor04 = planetData.TerrainTextureColor04;
+        _terrainTextureTilling01 = planetData.TerrainTextureTilling01;
+        _terrainTextureTilling02 = planetData.TerrainTextureTilling02;
+        _terrainTextureTilling03 = planetData.TerrainTextureTilling03;
+        _terrainTextureTilling04 = planetData.TerrainTextureTilling04;
+        _terrainTextureSmoothness01 = planetData.TerrainTextureSmoothness01;
+        _terrainTextureSmoothness01 = planetData.TerrainTextureSmoothness02;
+        _terrainTextureSmoothness01 = planetData.TerrainTextureSmoothness03;
+        _terrainTextureSmoothness01 = planetData.TerrainTextureSmoothness04;
+        _terrainTexturesSeparationSmoothness = planetData.TerrainTexturesSeparationSmoothness;
+        _terrainTexture02Height = planetData.TerrainTexture02Height;
+        _terrainTexture03Height = planetData.TerrainTexture03Height;
+        _terrainTexture04Height = planetData.TerrainTexture04Height;
 
         _hasAtmosphere = planetData.HasAtmosphere;
+        /*
         _atmosphereMainColor = _selectedAtmosphereMaterial.GetColor("_BaseColor");
         _atmosphereHorizonColor = _selectedAtmosphereMaterial.GetColor("_HorizonColor");
         _atmosphereRadius = _selectedAtmosphereMaterial.GetFloat("_Radius") - _displayedSize;
@@ -513,9 +572,19 @@ public class PlanetGenerationTool : EditorWindow
         _atmosphereEdgeSmoothness = _selectedAtmosphereMaterial.GetFloat("_DensityPower");
         _atmospherePlanetVisibilityModifier = _selectedAtmosphereMaterial.GetFloat("_PlanetVisibility");
         _atmosphereLightingDistance = _selectedAtmosphereMaterial.GetFloat("_LightingRadius");
+        */
+
+        _atmosphereMainColor = planetData.AtmosphereMainColor;
+        _atmosphereHorizonColor = planetData.AtmosphereHorizonColor;
+        _atmosphereRadius = planetData.AtmosphereRadius;
+        _atmosphereDensity = planetData.AtmosphereDensity;
+        _atmosphereEdgeSmoothness = planetData.AtmosphereEdgeSmoothness;
+        _atmospherePlanetVisibilityModifier = planetData.AtmospherePlanetVisibilityModifier;
+        _atmosphereLightingDistance = planetData.AtmosphereLightingDistance;
 
         _hasOcean = planetData.HasOcean;
         _oceanHeight = planetData.OceanHeight;
+        /*
         _oceanColor = _selectedOceanMaterial.GetColor("_Color");
         _oceanTexture = _selectedOceanMaterial.GetTexture("_BaseColor");
         _oceanNormalTexture = _selectedOceanMaterial.GetTexture("_Normal");
@@ -526,13 +595,98 @@ public class PlanetGenerationTool : EditorWindow
         _oceanHeightVariationFrequency = _selectedOceanMaterial.GetFloat("_HeightNoiseScale");
         _oceanHeightVariationSeed = _selectedOceanMaterial.GetFloat("_Seed");
         _oceanMovementSpeed = _selectedOceanMaterial.GetFloat("_WaterMovementSpeed");
+        */
+
+        _oceanColor = planetData.OceanColor;
+        _oceanTexture = planetData.OceanTexture;
+        _oceanNormalTexture = planetData.OceanNormalTexture;
+        _oceanTextureTilling = planetData.OceanTextureTilling;
+        _oceanSmoothness = planetData.OceanSmoothness;
+        _oceanMetalness = planetData.OceanMetalness;
+        _oceanHeightVariationIntensity = planetData.OceanHeightVariationIntensity;
+        _oceanHeightVariationFrequency = planetData.OceanHeightVariationFrequency;
+        _oceanHeightVariationSeed = planetData.OceanHeightVariationSeed;
+        _oceanMovementSpeed = planetData.OceanMovementSpeed;
 
         _hasRings = planetData.HasRings;
         _ringsSize = planetData.RingsSize;
         _ringsRotation = planetData.RingsRotation;
+        /*
         _ringsWidth = _selectedRingsMaterial.GetFloat("_Width");
         _ringsColor = _selectedRingsMaterial.GetColor("_Color");
         _ringsTexture = _selectedRingsMaterial.GetTexture("_MainTex");
+        */
+
+        _ringsWidth = planetData.RingsWidth;
+        _ringsColor = planetData.RingsColor;
+        _ringsTexture = planetData.RingsTexture;
+    }
+
+    public void SetParameters()
+    {
+        if (!_heightMapGenerator || !_selectedTerrainMaterial) return;
+
+        _heightMapGenerator.Seed = _seed;
+        _heightMapGenerator.heightRemap = _heightRemap;
+        _heightMapGenerator.NoiseScale = _noiseScale;
+        _heightMapGenerator.NoiseGain = _noiseGain;
+        _heightMapGenerator.NoiseLacunarity = _noiseLacunarity;
+        _heightMapGenerator.NormalIntensity = _detailsIntensity;
+
+        _heightMapGenerator.UpdateTerrain();
+
+        _selectedTerrainMaterial.SetFloat("_DisplacementIntensity", _mountainsHeight);
+        _selectedTerrainMaterial.SetTexture("_Texture01", _terrainTexture01);
+        _selectedTerrainMaterial.SetTexture("_Texture02", _terrainTexture02);
+        _selectedTerrainMaterial.SetTexture("_Texture03", _terrainTexture03);
+        _selectedTerrainMaterial.SetTexture("_Texture04", _terrainTexture04);
+        _selectedTerrainMaterial.SetColor("_Color01", _terrainTextureColor01);
+        _selectedTerrainMaterial.SetColor("_Color02", _terrainTextureColor02);
+        _selectedTerrainMaterial.SetColor("_Color03", _terrainTextureColor03);
+        _selectedTerrainMaterial.SetColor("_Color04", _terrainTextureColor04);
+        _selectedTerrainMaterial.SetFloat("_TillingTexture01", _terrainTextureTilling01);
+        _selectedTerrainMaterial.SetFloat("_TillingTexture02", _terrainTextureTilling02);
+        _selectedTerrainMaterial.SetFloat("_TillingTexture03", _terrainTextureTilling03);
+        _selectedTerrainMaterial.SetFloat("_TillingTexture04", _terrainTextureTilling04);
+        _selectedTerrainMaterial.SetFloat("_SmoothnessTexture01", _terrainTextureSmoothness01);
+        _selectedTerrainMaterial.SetFloat("_SmoothnessTexture02", _terrainTextureSmoothness02);
+        _selectedTerrainMaterial.SetFloat("_SmoothnessTexture03", _terrainTextureSmoothness03);
+        _selectedTerrainMaterial.SetFloat("_SmoothnessTexture04", _terrainTextureSmoothness04);
+        _selectedTerrainMaterial.SetFloat("_TextureSeparationSmoothness", _terrainTexturesSeparationSmoothness);
+        _selectedTerrainMaterial.SetFloat("_Texture02Height", _terrainTexture02Height);
+        _selectedTerrainMaterial.SetFloat("_Texture03Height", _terrainTexture03Height);
+        _selectedTerrainMaterial.SetFloat("_Texture04Height", _terrainTexture04Height);
+
+        _selectedAtmosphere.gameObject.SetActive(_hasAtmosphere);
+        _selectedAtmosphereMaterial.SetColor("_BaseColor", _atmosphereMainColor);
+        _selectedAtmosphereMaterial.SetColor("_HorizonColor", _atmosphereHorizonColor);
+        _selectedAtmosphereMaterial.SetFloat("_Radius", _atmosphereRadius + _displayedSize);
+        _selectedAtmosphereMaterial.SetFloat("_Density", _atmosphereDensity);
+        _selectedAtmosphereMaterial.SetFloat("_DensityPower", _atmosphereEdgeSmoothness);
+        _selectedAtmosphereMaterial.SetFloat("_PlanetVisibility", _atmospherePlanetVisibilityModifier);
+        _selectedAtmosphereMaterial.SetFloat("_LightingRadius", _atmosphereLightingDistance);
+
+        _selectedOcean.gameObject.SetActive(_hasOcean);
+        float oceanScale = _displayedSize + _oceanHeight;
+        _selectedOcean.transform.localScale = new Vector3(oceanScale, oceanScale, oceanScale);
+        _selectedOceanMaterial.SetColor("_Color", _oceanColor);
+        _selectedOceanMaterial.SetTexture("_BaseColor", _oceanTexture);
+        _selectedOceanMaterial.SetTexture("_Normal", _oceanNormalTexture);
+        _selectedOceanMaterial.SetFloat("_WaterTextureTilling", _oceanTextureTilling);
+        _selectedOceanMaterial.SetFloat("_Smoothness", _oceanSmoothness);
+        _selectedOceanMaterial.SetFloat("_Metalness", _oceanMetalness);
+        _selectedOceanMaterial.SetFloat("_OceanHeightVariation", _oceanHeightVariationIntensity);
+        _selectedOceanMaterial.SetFloat("_HeightNoiseScale", _oceanHeightVariationFrequency);
+        _selectedOceanMaterial.SetFloat("_Seed", _oceanHeightVariationSeed);
+        _selectedOceanMaterial.SetFloat("_WaterMovementSpeed", _oceanMovementSpeed);
+
+        _selectedRings.gameObject.SetActive(_hasRings);
+        float ringsScale = _displayedSize + _ringsSize;
+        _selectedRings.transform.localScale = new Vector3(ringsScale, ringsScale, ringsScale);
+        _selectedRings.transform.rotation = Quaternion.Euler(_ringsRotation);
+        _selectedRingsMaterial.SetFloat("_Width", _ringsWidth);
+        _selectedRingsMaterial.SetColor("_Color", _ringsColor);
+        _selectedRingsMaterial.SetTexture("_MainTex", _ringsTexture);
     }
 
     void ApplyShapeDefaultParameters()
@@ -595,8 +749,8 @@ public class PlanetGenerationTool : EditorWindow
         _hasOcean = true;
         _oceanHeight = OCEAN_REFERENCE_HEIGHT;
         _oceanColor = referenceMaterial.GetColor("_Color");
-        _oceanTexture = referenceMaterial.GetTexture("_BaseColor");
-        _oceanNormalTexture = referenceMaterial.GetTexture("_Normal");
+        _oceanTexture = (Texture2D)referenceMaterial.GetTexture("_BaseColor");
+        _oceanNormalTexture = (Texture2D)referenceMaterial.GetTexture("_Normal");
         _oceanTextureTilling = referenceMaterial.GetFloat("_WaterTextureTilling");
         _oceanSmoothness = referenceMaterial.GetFloat("_Smoothness");
         _oceanMetalness = referenceMaterial.GetFloat("_Metalness");
@@ -1246,73 +1400,6 @@ public class PlanetGenerationTool : EditorWindow
         void SectionTitle(string title)
         {
             EditorGUILayout.LabelField(new GUIContent($" {title}", EditorGUIUtility.IconContent("animationkeyframe").image), EditorStyles.boldLabel);
-        }
-
-        void SetParameters()
-        {
-            if(!_heightMapGenerator || !_selectedTerrainMaterial) return;
-
-            _heightMapGenerator.Seed = _seed;
-            _heightMapGenerator.heightRemap = _heightRemap;
-            _heightMapGenerator.NoiseScale = _noiseScale;
-            _heightMapGenerator.NoiseGain = _noiseGain;
-            _heightMapGenerator.NoiseLacunarity = _noiseLacunarity;
-            _heightMapGenerator.NormalIntensity = _detailsIntensity;
-
-            _heightMapGenerator.UpdateTerrain();
-
-            _selectedTerrainMaterial.SetFloat("_DisplacementIntensity", _mountainsHeight);
-            _selectedTerrainMaterial.SetTexture("_Texture01", _terrainTexture01);
-            _selectedTerrainMaterial.SetTexture("_Texture02", _terrainTexture02);
-            _selectedTerrainMaterial.SetTexture("_Texture03", _terrainTexture03);
-            _selectedTerrainMaterial.SetTexture("_Texture04", _terrainTexture04);
-            _selectedTerrainMaterial.SetColor("_Color01", _terrainTextureColor01);
-            _selectedTerrainMaterial.SetColor("_Color02", _terrainTextureColor02);
-            _selectedTerrainMaterial.SetColor("_Color03", _terrainTextureColor03);
-            _selectedTerrainMaterial.SetColor("_Color04", _terrainTextureColor04);
-            _selectedTerrainMaterial.SetFloat("_TillingTexture01", _terrainTextureTilling01);
-            _selectedTerrainMaterial.SetFloat("_TillingTexture02", _terrainTextureTilling02);
-            _selectedTerrainMaterial.SetFloat("_TillingTexture03", _terrainTextureTilling03);
-            _selectedTerrainMaterial.SetFloat("_TillingTexture04", _terrainTextureTilling04);
-            _selectedTerrainMaterial.SetFloat("_SmoothnessTexture01", _terrainTextureSmoothness01);
-            _selectedTerrainMaterial.SetFloat("_SmoothnessTexture02", _terrainTextureSmoothness02);
-            _selectedTerrainMaterial.SetFloat("_SmoothnessTexture03", _terrainTextureSmoothness03);
-            _selectedTerrainMaterial.SetFloat("_SmoothnessTexture04", _terrainTextureSmoothness04);
-            _selectedTerrainMaterial.SetFloat("_TextureSeparationSmoothness", _terrainTexturesSeparationSmoothness);
-            _selectedTerrainMaterial.SetFloat("_Texture02Height", _terrainTexture02Height);
-            _selectedTerrainMaterial.SetFloat("_Texture03Height", _terrainTexture03Height);
-            _selectedTerrainMaterial.SetFloat("_Texture04Height", _terrainTexture04Height);
-
-            _selectedAtmosphere.gameObject.SetActive(_hasAtmosphere);
-            _selectedAtmosphereMaterial.SetColor("_BaseColor", _atmosphereMainColor);
-            _selectedAtmosphereMaterial.SetColor("_HorizonColor", _atmosphereHorizonColor);
-            _selectedAtmosphereMaterial.SetFloat("_Radius", _atmosphereRadius + _displayedSize);
-            _selectedAtmosphereMaterial.SetFloat("_Density", _atmosphereDensity);
-            _selectedAtmosphereMaterial.SetFloat("_DensityPower", _atmosphereEdgeSmoothness);
-            _selectedAtmosphereMaterial.SetFloat("_PlanetVisibility", _atmospherePlanetVisibilityModifier);
-            _selectedAtmosphereMaterial.SetFloat("_LightingRadius", _atmosphereLightingDistance);
-
-            _selectedOcean.gameObject.SetActive(_hasOcean);
-            float oceanScale = _displayedSize + _oceanHeight;
-            _selectedOcean.transform.localScale = new Vector3(oceanScale, oceanScale, oceanScale);
-            _selectedOceanMaterial.SetColor("_Color", _oceanColor);
-            _selectedOceanMaterial.SetTexture("_BaseColor", _oceanTexture);
-            _selectedOceanMaterial.SetTexture("_Normal", _oceanNormalTexture);
-            _selectedOceanMaterial.SetFloat("_WaterTextureTilling", _oceanTextureTilling);
-            _selectedOceanMaterial.SetFloat("_Smoothness", _oceanSmoothness);
-            _selectedOceanMaterial.SetFloat("_Metalness", _oceanMetalness);
-            _selectedOceanMaterial.SetFloat("_OceanHeightVariation", _oceanHeightVariationIntensity);
-            _selectedOceanMaterial.SetFloat("_HeightNoiseScale", _oceanHeightVariationFrequency);
-            _selectedOceanMaterial.SetFloat("_Seed", _oceanHeightVariationSeed);
-            _selectedOceanMaterial.SetFloat("_WaterMovementSpeed", _oceanMovementSpeed);
-
-            _selectedRings.gameObject.SetActive(_hasRings);
-            float ringsScale = _displayedSize + _ringsSize;
-            _selectedRings.transform.localScale = new Vector3(ringsScale, ringsScale, ringsScale);
-            _selectedRings.transform.rotation = Quaternion.Euler(_ringsRotation);
-            _selectedRingsMaterial.SetFloat("_Width", _ringsWidth);
-            _selectedRingsMaterial.SetColor("_Color", _ringsColor);
-            _selectedRingsMaterial.SetTexture("_MainTex", _ringsTexture);
         }
     }
 

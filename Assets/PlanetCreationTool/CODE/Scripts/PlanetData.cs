@@ -58,8 +58,8 @@ public class PlanetData : ScriptableObject
     public bool HasOcean;
     public float OceanHeight;
     public Color OceanColor;
-    public Texture OceanTexture;
-    public Texture OceanNormalTexture;
+    public Texture2D OceanTexture;
+    public Texture2D OceanNormalTexture;
     public float OceanTextureTilling = 1.0f;
     public float OceanSmoothness = 0.5f;
     public float OceanMetalness = 0.0f;
