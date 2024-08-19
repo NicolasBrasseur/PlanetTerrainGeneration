@@ -53,7 +53,7 @@ float hash(float2 p)
 
 #define Rivers_Grid_Size 64
 #define Grid_To_Texture_Ratio 32
-#define Source_Size 1
+#define Source_Size 1.0f
 
 #define Downhill_Flow_Multiplier 1.5f
 #define Uphill_Flow_Multiplier 100
@@ -177,12 +177,18 @@ void CSMain (uint3 id : SV_DispatchThreadID)
 [numthreads(8, 8, 1)]
 void CSRiversSources(uint3 id : SV_DispatchThreadID)
 {
-    float2 localpositionInCell = frac((float) id.xy / (float)Grid_To_Texture_Ratio);
-    float value;
-    float centerZoneSize = (1 / (Grid_To_Texture_Ratio / 2)) * Source_Size;
+    float2 localpositionInCell;
+    localpositionInCell.x = frac((float) id.x / (float) Grid_To_Texture_Ratio);
+    localpositionInCell.y = frac((float) id.y / (float) Grid_To_Texture_Ratio);
     
-    if (localpositionInCell.x >= (0.5f - centerZoneSize) && localpositionInCell.x <= (0.5f + centerZoneSize) &&
-        localpositionInCell.y >= (0.5f - centerZoneSize) && localpositionInCell.y <= (0.5f + centerZoneSize))
+    float value;
+    float centerZoneSize = (1.0f / ((float) Grid_To_Texture_Ratio)) * ((float) Source_Size);
+    
+    bool centerX = (localpositionInCell.x >= (0.5f - centerZoneSize)) && (localpositionInCell.x <= (0.5f + centerZoneSize));
+
+    bool centerY = (localpositionInCell.y >= (0.5f - centerZoneSize)) && (localpositionInCell.y <= (0.5f + centerZoneSize));
+    
+    if (centerX && centerY)
     {
         int3 ajustedId = floor(id / Grid_To_Texture_Ratio); //Get the id on the 64x64 grid from the id in a 2048x2048 grid
         value = RiversSourcesData[ajustedId.x + (63 - ajustedId.y) * Rivers_Grid_Size];
@@ -192,12 +198,14 @@ void CSRiversSources(uint3 id : SV_DispatchThreadID)
         value = 0;
     }
     
+    //value = localpositionInCell.x * localpositionInCell.y;
+    
     RiversMap[id.xy] = value;
 }
 
 [numthreads(8, 8, 1)]
 void CSRivers(uint3 threadId : SV_DispatchThreadID)
-{
+{   
     uint2 id = threadId.xy;
     uint2 id_up = id + uint2(0, 1);
     uint2 id_down = id + uint2(0, -1);
@@ -223,7 +231,7 @@ void CSRivers(uint3 threadId : SV_DispatchThreadID)
         float testedHeight = HeightInput[testedId];
         
         float heightVariation = cellHeight - testedHeight;
-        if (heightVariation > highestHeightVariation)
+        if (heightVariation > highestHeightVariation && (RiversMap[testedId] < 0.5f || RiversMap[id] <= 0.5f))
         {
             highestHeightVariation = heightVariation;
             lowestNeighbourId = testedId;
@@ -258,21 +266,39 @@ void CSRivers(uint3 threadId : SV_DispatchThreadID)
     
     if (canFlow)
     {
-        float newFlow = RiversMap[id] - 0.1f;
-        if (RiversMap[id] <= 0.2f && RiversMap[id] >= 0.1f)
-        {
-            newFlow = 1.0f;
-        }
-        RiversMap[lowestNeighbourId] = max(RiversMap[lowestNeighbourId], newFlow);
+        //float newFlow = RiversMap[id] - 0.1f;
+        //if (RiversMap[id] <= 0.2f && RiversMap[id] >= 0.1f)
+        //{
+        //    newFlow = 1.0f;
+        //}
+        //RiversMap[lowestNeighbourId] = max(RiversMap[lowestNeighbourId], newFlow);
+        
+        RiversMap[lowestNeighbourId] = max(RiversMap[lowestNeighbourId], 0.5f);
     }
     else
     {
-        //RiversMap[id] = 2.0f;
-        RiversMap[id_up] = 1.0f;
-        RiversMap[id_down] = 1.0f;
-        RiversMap[id_left] = 1.0f;
-        RiversMap[id_right] = 1.0f;
+        if (RiversMap[id] >= 0.9f)
+        {
+            return;
+        }
+        else
+        {
+            
+            float newFlow;
+        
+            for (int i = 0; i < 4; i++)
+            {
+                newFlow = RiversMap[id] + 0.1f;
+                
+                RiversMap[allNeighbours[i]] = max(RiversMap[allNeighbours[i]], newFlow);
+            }
+            
+            RiversMap[id] = newFlow;
+
+        }
     }
+    
+    //HeightOutput[id] = HeightInput[id] - RiversMap[id];
 }
 
 

@@ -241,6 +241,7 @@ public class HeightMapGenerator : MonoBehaviour
 
         TextureGenerator.SetTexture(_kernelRivers, "RiversMap", _riversTexture);
         TextureGenerator.SetTexture(_kernelRivers, "HeightInput", _generatedTexture);
+        TextureGenerator.SetTexture(_kernelRivers, "HeightOutput", _generatedTexture);
         TextureGenerator.Dispatch(_kernelRivers, TextureResolution / 8, TextureResolution / 8, 1);
     }
 
