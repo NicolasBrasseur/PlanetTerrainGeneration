@@ -1,11 +1,13 @@
 #pragma kernel CSMain
 #pragma kernel CSRiversSources
-#pragma kernel CSRivers
+#pragma kernel CSRiversStructure
+#pragma kernel CSRiversSmoothing
 #pragma kernel CSNormal
 
 Texture2D<float> HeightInput;
 
 RWTexture2D<float> HeightOutput;
+RWTexture2D<float> RiversStructureMap;
 RWTexture2D<float> RiversMap;
 RWTexture2D<float4> NormalOutput;
 
@@ -200,11 +202,11 @@ void CSRiversSources(uint3 id : SV_DispatchThreadID)
     
     //value = localpositionInCell.x * localpositionInCell.y;
     
-    RiversMap[id.xy] = value;
+    RiversStructureMap[id.xy] = value;
 }
 
 [numthreads(8, 8, 1)]
-void CSRivers(uint3 threadId : SV_DispatchThreadID)
+void CSRiversStructure(uint3 threadId : SV_DispatchThreadID)
 {   
     uint2 id = threadId.xy;
     uint2 id_up = id + uint2(0, 1);
@@ -215,12 +217,12 @@ void CSRivers(uint3 threadId : SV_DispatchThreadID)
     uint2 allNeighbours[4] = { id_up, id_down, id_left, id_right };
     
     float cellHeight = HeightInput[id];
-    float flow = RiversMap[id];
+    float flow = RiversStructureMap[id];
     uint2 lowestNeighbourId;
     float highestHeightVariation = 0;
     bool canFlow = false;
     
-    if (RiversMap[id] < 0.1f)
+    if (RiversStructureMap[id] < 0.1f)
     {
         return;
     }
@@ -231,7 +233,7 @@ void CSRivers(uint3 threadId : SV_DispatchThreadID)
         float testedHeight = HeightInput[testedId];
         
         float heightVariation = cellHeight - testedHeight;
-        if (heightVariation > highestHeightVariation && (RiversMap[testedId] < 0.5f || RiversMap[id] <= 0.5f))
+        if (heightVariation > highestHeightVariation && (RiversStructureMap[testedId] < 0.5f || RiversStructureMap[id] <= 0.5f))
         {
             highestHeightVariation = heightVariation;
             lowestNeighbourId = testedId;
@@ -261,23 +263,23 @@ void CSRivers(uint3 threadId : SV_DispatchThreadID)
 
     }
     
-    //RiversMap[id] = 0.0f;
+    //RiversStructureMap[id] = 0.0f;
     
     
     if (canFlow)
     {
-        //float newFlow = RiversMap[id] - 0.1f;
-        //if (RiversMap[id] <= 0.2f && RiversMap[id] >= 0.1f)
+        //float newFlow = RiversStructureMap[id] - 0.1f;
+        //if (RiversStructureMap[id] <= 0.2f && RiversStructureMap[id] >= 0.1f)
         //{
         //    newFlow = 1.0f;
         //}
-        //RiversMap[lowestNeighbourId] = max(RiversMap[lowestNeighbourId], newFlow);
+        //RiversStructureMap[lowestNeighbourId] = max(RiversStructureMap[lowestNeighbourId], newFlow);
         
-        RiversMap[lowestNeighbourId] = max(RiversMap[lowestNeighbourId], 0.5f);
+        RiversStructureMap[lowestNeighbourId] = max(RiversStructureMap[lowestNeighbourId], 0.5f);
     }
     else
     {
-        if (RiversMap[id] >= 0.9f)
+        if (RiversStructureMap[id] >= 0.9f)
         {
             return;
         }
@@ -288,17 +290,39 @@ void CSRivers(uint3 threadId : SV_DispatchThreadID)
         
             for (int i = 0; i < 4; i++)
             {
-                newFlow = RiversMap[id] + 0.1f;
+                newFlow = RiversStructureMap[id] + 0.1f;
                 
-                RiversMap[allNeighbours[i]] = max(RiversMap[allNeighbours[i]], newFlow);
+                RiversStructureMap[allNeighbours[i]] = max(RiversStructureMap[allNeighbours[i]], newFlow);
             }
             
-            RiversMap[id] = newFlow;
+            RiversStructureMap[id] = newFlow;
 
         }
     }
     
-    //HeightOutput[id] = HeightInput[id] - RiversMap[id];
+    //HeightOutput[id] = HeightInput[id] - RiversStructureMap[id];
+}
+
+[numthreads(8, 8, 1)]
+void CSRiversSmoothing(uint3 threadId : SV_DispatchThreadID)
+{
+    uint2 id = threadId.xy;
+    uint2 id_up = id + uint2(0, 1);
+    uint2 id_down = id + uint2(0, -1);
+    uint2 id_left = id + uint2(-1, 0);
+    uint2 id_right = id + uint2(1, 0);
+    
+    if (RiversStructureMap[id] > 0.0f)
+    {
+        RiversMap[id] = 1.0f;
+    }
+    else
+    {
+        float averageFlow = (RiversMap[id_up] + RiversMap[id_down] + RiversMap[id_left] + RiversMap[id_right]) / 4;
+        float flowPower = pow(abs(averageFlow), 1.1f);
+    
+        RiversMap[id] = flowPower;
+    }
 }
 
 

@@ -65,6 +65,7 @@ public class HeightMapGenerator : MonoBehaviour
     // Private var
     private RenderTexture _generatedTexture;
     private RenderTexture _normalTexture;
+    private RenderTexture _riversStructureTexture;
     private RenderTexture _riversTexture;
 
     private ComputeBuffer _heightRemapData;
@@ -72,7 +73,8 @@ public class HeightMapGenerator : MonoBehaviour
 
     private int _kernelGenerator;
     private int _kernelRiversSources;
-    private int _kernelRivers;
+    private int _kernelRiversStructure;
+    private int _kernelRiversSmoothing;
     private int _kernelNormal;
 
     // Consts
@@ -169,6 +171,14 @@ public class HeightMapGenerator : MonoBehaviour
             _riversTexture.Release();
         if(_riversSourcesData != null)
             _riversSourcesData.Release();
+        if(_riversStructureTexture != null) 
+            _riversStructureTexture.Release();
+
+        _riversStructureTexture = new RenderTexture(TextureResolution, TextureResolution, 0, RenderTextureFormat.R16, RenderTextureReadWrite.Linear);
+        _riversStructureTexture.enableRandomWrite = true;
+        _riversStructureTexture.filterMode = FilterMode.Point;
+        _riversStructureTexture.wrapMode = TextureWrapMode.Clamp;
+        _riversStructureTexture.Create();
 
         _riversTexture = new RenderTexture(TextureResolution, TextureResolution, 0, RenderTextureFormat.R16, RenderTextureReadWrite.Linear);
         _riversTexture.enableRandomWrite = true;
@@ -179,7 +189,8 @@ public class HeightMapGenerator : MonoBehaviour
         _riversSourcesData = new ComputeBuffer(RIVERS_GRID_SIZE * RIVERS_GRID_SIZE, 4);
 
         _kernelRiversSources = TextureGenerator.FindKernel("CSRiversSources");
-        _kernelRivers = TextureGenerator.FindKernel("CSRivers");
+        _kernelRiversStructure = TextureGenerator.FindKernel("CSRiversStructure");
+        _kernelRiversSmoothing = TextureGenerator.FindKernel("CSRiversSmoothing");
 
         renderer.sharedMaterial.SetTexture(RIVERS_MAP_NAME, _riversTexture);
 
@@ -229,7 +240,7 @@ public class HeightMapGenerator : MonoBehaviour
 
         _riversSourcesData.SetData(RiversSourcesTempBuffer);
         TextureGenerator.SetBuffer(_kernelRiversSources, "RiversSourcesData", _riversSourcesData);
-        TextureGenerator.SetTexture(_kernelRiversSources, "RiversMap", _riversTexture);
+        TextureGenerator.SetTexture(_kernelRiversSources, "RiversStructureMap", _riversStructureTexture);
 
         TextureGenerator.Dispatch(_kernelRiversSources, TextureResolution / 8, TextureResolution / 8, 1);
     }
@@ -237,12 +248,16 @@ public class HeightMapGenerator : MonoBehaviour
     private void UpdateRivers()
     {
         if(!isRiversInitialized) { InitRivers(this.transform.GetChild(0).GetComponent<MeshRenderer>()); }
-        if(_riversTexture == null) { Debug.LogWarning("The rivers texture wasn't initalized"); return; }
+        if(_riversStructureTexture == null || _riversTexture == null) { Debug.LogWarning("The rivers texture wasn't initalized"); return; }
 
-        TextureGenerator.SetTexture(_kernelRivers, "RiversMap", _riversTexture);
-        TextureGenerator.SetTexture(_kernelRivers, "HeightInput", _generatedTexture);
-        TextureGenerator.SetTexture(_kernelRivers, "HeightOutput", _generatedTexture);
-        TextureGenerator.Dispatch(_kernelRivers, TextureResolution / 8, TextureResolution / 8, 1);
+        TextureGenerator.SetTexture(_kernelRiversStructure, "RiversStructureMap", _riversStructureTexture);
+        TextureGenerator.SetTexture(_kernelRiversStructure, "HeightInput", _generatedTexture);
+        TextureGenerator.SetTexture(_kernelRiversStructure, "HeightOutput", _generatedTexture);
+        TextureGenerator.Dispatch(_kernelRiversStructure, TextureResolution / 8, TextureResolution / 8, 1);
+
+        TextureGenerator.SetTexture(_kernelRiversSmoothing, "RiversStructureMap", _riversStructureTexture);
+        TextureGenerator.SetTexture(_kernelRiversSmoothing, "RiversMap", _riversTexture);
+        TextureGenerator.Dispatch(_kernelRiversSmoothing, TextureResolution / 8, TextureResolution / 8, 1);
     }
 
     public Texture2D GetHeightMap()
