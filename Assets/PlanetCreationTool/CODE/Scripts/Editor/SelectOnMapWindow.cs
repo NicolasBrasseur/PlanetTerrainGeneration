@@ -47,7 +47,7 @@ public class SelectOnMapWindow : EditorWindow
     {
         ScrollAndMarginsStart();
 
-        SectionTitle("Select a river source location");
+        SectionTitle("Select the rivers source location (click to place or remove a source)");
 
         DrawPreviewTexture();
 

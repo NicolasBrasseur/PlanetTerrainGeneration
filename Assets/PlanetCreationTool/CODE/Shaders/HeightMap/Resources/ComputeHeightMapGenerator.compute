@@ -5,8 +5,10 @@
 #pragma kernel CSNormal
 
 Texture2D<float> HeightInput;
+Texture2D<float> HeightErodedInput;
 
 RWTexture2D<float> HeightOutput;
+RWTexture2D<float> HeightErodedOutput;
 RWTexture2D<float> RiversStructureMap;
 RWTexture2D<float> RiversMap;
 RWTexture2D<float4> NormalOutput;
@@ -21,6 +23,9 @@ float NoiseLacunarity;
 float NormalIntensity;
 float NormalLimitation;
 float AOIntensity;
+float ErosionPower;
+float ErosionSmoothness;
+float RiversBedWidth;
 
 float2 Position;
 float Seed;
@@ -183,6 +188,7 @@ void CSRiversSources(uint3 id : SV_DispatchThreadID)
     localpositionInCell.x = frac((float) id.x / (float) Grid_To_Texture_Ratio);
     localpositionInCell.y = frac((float) id.y / (float) Grid_To_Texture_Ratio);
     
+    // Restrict the spawned rivers source location to the center of each cell
     float value;
     float centerZoneSize = (1.0f / ((float) Grid_To_Texture_Ratio)) * ((float) Source_Size);
     
@@ -199,8 +205,6 @@ void CSRiversSources(uint3 id : SV_DispatchThreadID)
     {
         value = 0;
     }
-    
-    //value = localpositionInCell.x * localpositionInCell.y;
     
     RiversStructureMap[id.xy] = value;
 }
@@ -222,16 +226,19 @@ void CSRiversStructure(uint3 threadId : SV_DispatchThreadID)
     float highestHeightVariation = 0;
     bool canFlow = false;
     
+    // Only do the calculation for the cells containing water
     if (RiversStructureMap[id] < 0.1f)
     {
         return;
     }
     
+    // Compare to each neighbouring cell
     for (int i = 0; i < 4; i++)
     {
         uint2 testedId = allNeighbours[i];
         float testedHeight = HeightInput[testedId];
         
+        // Find the lowest neighbour if any
         float heightVariation = cellHeight - testedHeight;
         if (heightVariation > highestHeightVariation && (RiversStructureMap[testedId] < 0.5f || RiversStructureMap[id] <= 0.5f))
         {
@@ -241,9 +248,7 @@ void CSRiversStructure(uint3 threadId : SV_DispatchThreadID)
         }
         
         
-        
-        
-        //Old calculation
+        //Backup calculation
         /*
         float flowModifier = 0;
         if (heightVariation >= 0)
@@ -260,25 +265,19 @@ void CSRiversStructure(uint3 threadId : SV_DispatchThreadID)
         
         RiversMap[testedId] = neighborFlow;
         */
-
     }
     
     //RiversStructureMap[id] = 0.0f;
     
     
     if (canFlow)
-    {
-        //float newFlow = RiversStructureMap[id] - 0.1f;
-        //if (RiversStructureMap[id] <= 0.2f && RiversStructureMap[id] >= 0.1f)
-        //{
-        //    newFlow = 1.0f;
-        //}
-        //RiversStructureMap[lowestNeighbourId] = max(RiversStructureMap[lowestNeighbourId], newFlow);
-        
+    {      
+        // If there is a lower neighbour, fill the lowest with water with a normal flow (0.5)
         RiversStructureMap[lowestNeighbourId] = max(RiversStructureMap[lowestNeighbourId], 0.5f);
     }
     else
     {
+        // If there is no lower neighbour, increase the flow to all empty neighbours to indicate an overflow
         if (RiversStructureMap[id] >= 0.9f)
         {
             return;
@@ -299,8 +298,6 @@ void CSRiversStructure(uint3 threadId : SV_DispatchThreadID)
 
         }
     }
-    
-    //HeightOutput[id] = HeightInput[id] - RiversStructureMap[id];
 }
 
 [numthreads(8, 8, 1)]
@@ -312,17 +309,22 @@ void CSRiversSmoothing(uint3 threadId : SV_DispatchThreadID)
     uint2 id_left = id + uint2(-1, 0);
     uint2 id_right = id + uint2(1, 0);
     
+    // Rescale every river source and river bed to 1
     if (RiversStructureMap[id] > 0.0f)
     {
         RiversMap[id] = 1.0f;
     }
     else
     {
+        // For all other cells, do an average of all neighbouring cell flow
         float averageFlow = (RiversMap[id_up] + RiversMap[id_down] + RiversMap[id_left] + RiversMap[id_right]) / 4;
         float flowPower = pow(abs(averageFlow), 1.1f);
     
         RiversMap[id] = flowPower;
     }
+    
+    // Subtract the rivers flow to the heightmap to reflect water erosion
+    HeightErodedOutput[id] = HeightErodedInput[id] - ErosionPower * min(pow(abs(RiversMap[id]), (1.0f - ErosionSmoothness)), (1.0f - RiversBedWidth));
 }
 
 

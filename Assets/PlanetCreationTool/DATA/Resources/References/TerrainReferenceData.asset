@@ -59,3 +59,6 @@ MonoBehaviour:
   NoiseGain: 2
   NoiseLacunarity: 0.5
   DetailsIntensity: 3
+  RiversErosionPower: 0.3
+  RiversErosionSmoothness: 0.2
+  RiversBedWidth: 0.9

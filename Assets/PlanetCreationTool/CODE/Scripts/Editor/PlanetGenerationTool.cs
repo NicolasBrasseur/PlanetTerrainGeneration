@@ -1,6 +1,8 @@
 using System.Collections;
 using System.Collections.Generic;
+using System.Runtime.CompilerServices;
 using UnityEditor;
+using UnityEditor.SceneManagement;
 using UnityEngine;
 
 [InitializeOnLoad]
@@ -23,6 +25,7 @@ public class PlanetGenerationTool : EditorWindow
 
     private GUIStyle _centeredStyle;
     private GUIStyle _boldCenteredStyle;
+    private GUIStyle _richTextStyle;
 
     private Material _selectedTerrainMaterial;
     private Material _selectedAtmosphereMaterial;
@@ -30,6 +33,7 @@ public class PlanetGenerationTool : EditorWindow
     private Material _selectedRingsMaterial;
     private GameObject _selectedPlanet;
     private GameObject _defaultPlanetPrefab;
+    private GameObject _lastSelectedObject;
     private Transform _selectedTerrainParent;
     private Transform _selectedAtmosphere;
     private Transform _selectedOcean;
@@ -111,6 +115,16 @@ public class PlanetGenerationTool : EditorWindow
     private Color _ringsColor;
     private Texture _ringsTexture;
 
+    //Rivers parameters
+    private float _riversTransparency;
+    private float _riversEdgeSmoothness;
+    private float _riversErosionPower;
+    private float _riversErosionSmoothness;
+    private float _riversBedWidth;
+    private Texture2D _riversTexture;
+    private float _riversTextureTilling;
+    private Color _RiversColor;
+
     //Consts
     private const int TOP_MARGIN = 20;
     private const int BOTTOM_MARGIN = 30;
@@ -174,6 +188,7 @@ public class PlanetGenerationTool : EditorWindow
             {
                 generationTool.UpdateSelection(planet);
                 generationTool.SetParameters();
+                generationTool.ValidateRiversSources();
             }
 
         }
@@ -185,12 +200,14 @@ public class PlanetGenerationTool : EditorWindow
     {
         InitiateVariables();
         CreateNewTag(PLANET_TAG);
+        EditorSceneManager.sceneSaved += OnSceneSaved;
     }
 
     private void OnDisable()
     {
         SaveData();
         AssetDatabase.SaveAssets();
+        EditorSceneManager.sceneSaved -= OnSceneSaved;
     }
 
 
@@ -210,7 +227,13 @@ public class PlanetGenerationTool : EditorWindow
             SaveData();
             UpdateSelection(selectedObject);
             SceneView.FrameLastActiveSceneView();
+            ValidateRiversSources();
         }
+    }
+
+    private void OnSceneSaved(UnityEngine.SceneManagement.Scene scene)
+    {
+        ValidateRiversSources();
     }
 
     #endregion
@@ -331,6 +354,7 @@ public class PlanetGenerationTool : EditorWindow
 
             ApplyMaterials();
             ApplyTerrainDefaultParameters();
+            ApplyRiversDefaultParameters();
 
             _heightMapGenerator.InitGeneration(_selectedTerrainParent.GetChild(0).gameObject.GetComponent<MeshRenderer>());
 
@@ -500,46 +524,12 @@ public class PlanetGenerationTool : EditorWindow
         _displayedSize = _planetSize;
         _planetResolution = planetData.PlanetResolution;
 
-        /*
-        _seed = _heightMapGenerator.Seed;
-        _heightRemap = _heightMapGenerator.heightRemap;
-        _noiseScale = _heightMapGenerator.NoiseScale;
-        _noiseScale = planetData.NoiseScale;
-        _noiseGain = _heightMapGenerator.NoiseGain;
-        _noiseLacunarity = _heightMapGenerator.NoiseLacunarity;
-        _detailsIntensity = _heightMapGenerator.NormalIntensity;
-        */
-
         _seed = planetData.Seed;
         _heightRemap = planetData.HeightRemap;
         _noiseScale = planetData.NoiseScale;
         _noiseGain = planetData.NoiseGain;
         _noiseLacunarity = planetData.NoiseLacunarity;
         _detailsIntensity = planetData.DetailsIntensity;
-
-        /*
-        _mountainsHeight = _selectedTerrainMaterial.GetFloat("_DisplacementIntensity");
-        _terrainTexture01 = _selectedTerrainMaterial.GetTexture("_Texture01");
-        _terrainTexture02 = _selectedTerrainMaterial.GetTexture("_Texture02");
-        _terrainTexture03 = _selectedTerrainMaterial.GetTexture("_Texture03");
-        _terrainTexture04 = _selectedTerrainMaterial.GetTexture("_Texture04");
-        _terrainTextureColor01 = _selectedTerrainMaterial.GetColor("_Color01");
-        _terrainTextureColor02 = _selectedTerrainMaterial.GetColor("_Color02");
-        _terrainTextureColor03 = _selectedTerrainMaterial.GetColor("_Color03");
-        _terrainTextureColor04 = _selectedTerrainMaterial.GetColor("_Color04");
-        _terrainTextureTilling01 = _selectedTerrainMaterial.GetFloat("_TillingTexture01");
-        _terrainTextureTilling02 = _selectedTerrainMaterial.GetFloat("_TillingTexture02");
-        _terrainTextureTilling03 = _selectedTerrainMaterial.GetFloat("_TillingTexture03");
-        _terrainTextureTilling04 = _selectedTerrainMaterial.GetFloat("_TillingTexture04");
-        _terrainTextureSmoothness01 = _selectedTerrainMaterial.GetFloat("_SmoothnessTexture01");
-        _terrainTextureSmoothness01 = _selectedTerrainMaterial.GetFloat("_SmoothnessTexture02");
-        _terrainTextureSmoothness01 = _selectedTerrainMaterial.GetFloat("_SmoothnessTexture03");
-        _terrainTextureSmoothness01 = _selectedTerrainMaterial.GetFloat("_SmoothnessTexture04");
-        _terrainTexturesSeparationSmoothness = _selectedTerrainMaterial.GetFloat("_TextureSeparationSmoothness");
-        _terrainTexture02Height = _selectedTerrainMaterial.GetFloat("_Texture02Height");
-        _terrainTexture03Height = _selectedTerrainMaterial.GetFloat("_Texture03Height");
-        _terrainTexture04Height = _selectedTerrainMaterial.GetFloat("_Texture04Height");
-        */
 
         _mountainsHeight = planetData.MountainsHeight;
         _terrainTexture01 = planetData.TerrainTexture01;
@@ -564,15 +554,6 @@ public class PlanetGenerationTool : EditorWindow
         _terrainTexture04Height = planetData.TerrainTexture04Height;
 
         _hasAtmosphere = planetData.HasAtmosphere;
-        /*
-        _atmosphereMainColor = _selectedAtmosphereMaterial.GetColor("_BaseColor");
-        _atmosphereHorizonColor = _selectedAtmosphereMaterial.GetColor("_HorizonColor");
-        _atmosphereRadius = _selectedAtmosphereMaterial.GetFloat("_Radius") - _displayedSize;
-        _atmosphereDensity = _selectedAtmosphereMaterial.GetFloat("_Density");
-        _atmosphereEdgeSmoothness = _selectedAtmosphereMaterial.GetFloat("_DensityPower");
-        _atmospherePlanetVisibilityModifier = _selectedAtmosphereMaterial.GetFloat("_PlanetVisibility");
-        _atmosphereLightingDistance = _selectedAtmosphereMaterial.GetFloat("_LightingRadius");
-        */
 
         _atmosphereMainColor = planetData.AtmosphereMainColor;
         _atmosphereHorizonColor = planetData.AtmosphereHorizonColor;
@@ -584,18 +565,6 @@ public class PlanetGenerationTool : EditorWindow
 
         _hasOcean = planetData.HasOcean;
         _oceanHeight = planetData.OceanHeight;
-        /*
-        _oceanColor = _selectedOceanMaterial.GetColor("_Color");
-        _oceanTexture = _selectedOceanMaterial.GetTexture("_BaseColor");
-        _oceanNormalTexture = _selectedOceanMaterial.GetTexture("_Normal");
-        _oceanTextureTilling = _selectedOceanMaterial.GetFloat("_WaterTextureTilling");
-        _oceanSmoothness = _selectedOceanMaterial.GetFloat("_Smoothness");
-        _oceanMetalness = _selectedOceanMaterial.GetFloat("_Metalness");
-        _oceanHeightVariationIntensity = _selectedOceanMaterial.GetFloat("_OceanHeightVariation");
-        _oceanHeightVariationFrequency = _selectedOceanMaterial.GetFloat("_HeightNoiseScale");
-        _oceanHeightVariationSeed = _selectedOceanMaterial.GetFloat("_Seed");
-        _oceanMovementSpeed = _selectedOceanMaterial.GetFloat("_WaterMovementSpeed");
-        */
 
         _oceanColor = planetData.OceanColor;
         _oceanTexture = planetData.OceanTexture;
@@ -611,15 +580,20 @@ public class PlanetGenerationTool : EditorWindow
         _hasRings = planetData.HasRings;
         _ringsSize = planetData.RingsSize;
         _ringsRotation = planetData.RingsRotation;
-        /*
-        _ringsWidth = _selectedRingsMaterial.GetFloat("_Width");
-        _ringsColor = _selectedRingsMaterial.GetColor("_Color");
-        _ringsTexture = _selectedRingsMaterial.GetTexture("_MainTex");
-        */
 
         _ringsWidth = planetData.RingsWidth;
         _ringsColor = planetData.RingsColor;
         _ringsTexture = planetData.RingsTexture;
+
+        RiversSources = planetData.RiversSources;
+        _riversTransparency = planetData.RiversTransparency;
+        _riversEdgeSmoothness = planetData.RiversEdgeSmoothness;
+        _riversErosionPower = planetData.RiversErosionPower;
+        _riversErosionSmoothness = planetData.RiversErosionSmoothness;
+        _riversBedWidth = planetData.RiversBedWidth;
+        _riversTexture = planetData.RiversTexture;
+        _riversTextureTilling = planetData.RiversTextureTilling;
+        _RiversColor = planetData.RiversColor;
     }
 
     public void SetParameters()
@@ -632,6 +606,9 @@ public class PlanetGenerationTool : EditorWindow
         _heightMapGenerator.NoiseGain = _noiseGain;
         _heightMapGenerator.NoiseLacunarity = _noiseLacunarity;
         _heightMapGenerator.NormalIntensity = _detailsIntensity;
+        _heightMapGenerator.RiversErosionPower = _riversErosionPower;
+        _heightMapGenerator.RiversErosionSmoothness = _riversErosionSmoothness;
+        _heightMapGenerator.RiversBedWidth = _riversBedWidth;
 
         _heightMapGenerator.UpdateTerrain();
 
@@ -656,6 +633,11 @@ public class PlanetGenerationTool : EditorWindow
         _selectedTerrainMaterial.SetFloat("_Texture02Height", _terrainTexture02Height);
         _selectedTerrainMaterial.SetFloat("_Texture03Height", _terrainTexture03Height);
         _selectedTerrainMaterial.SetFloat("_Texture04Height", _terrainTexture04Height);
+        _selectedTerrainMaterial.SetFloat("_RiversMultiply", _riversTransparency);
+        _selectedTerrainMaterial.SetFloat("_RiversPower", (10.0f - _riversEdgeSmoothness));
+        _selectedTerrainMaterial.SetTexture("_RiversTexture", _riversTexture);
+        _selectedTerrainMaterial.SetFloat("_RiversTilling", _riversTextureTilling);
+        _selectedTerrainMaterial.SetColor("_RiversColor", _RiversColor);
 
         _selectedAtmosphere.gameObject.SetActive(_hasAtmosphere);
         _selectedAtmosphereMaterial.SetColor("_BaseColor", _atmosphereMainColor);
@@ -772,6 +754,23 @@ public class PlanetGenerationTool : EditorWindow
         _ringsTexture = referenceMaterial.GetTexture("_MainTex");
     }
 
+    void ApplyRiversDefaultParameters()
+    {
+        TerrainReferenceData referenceData = Resources.Load<TerrainReferenceData>(TERRAIN_REFERENCE_DATA_PATH);
+
+        _riversErosionPower = referenceData.RiversErosionPower;
+        _riversErosionSmoothness = referenceData.RiversErosionSmoothness;
+        _riversBedWidth = referenceData.RiversBedWidth;
+
+        Material referenceMaterial = Resources.Load<Material>(TERRAIN_REFERENCE_MATERIAL_PATH);
+
+        _riversTransparency = referenceMaterial.GetFloat("_RiversMultiply");
+        _riversEdgeSmoothness = 10.0f - referenceMaterial.GetFloat("_RiversPower");
+        _riversTexture = referenceMaterial.GetTexture("_RiversTexture") as Texture2D;
+        _riversTextureTilling = referenceMaterial.GetFloat("_RiversTilling");
+        _RiversColor = referenceMaterial.GetColor("_RiversColor");
+    }
+
     void SaveData()
     {
         if(_selectedPlanet == null) {  return; }
@@ -839,6 +838,16 @@ public class PlanetGenerationTool : EditorWindow
         planetData.RingsWidth = _ringsWidth;
         planetData.RingsColor = _ringsColor;
         planetData.RingsTexture = _ringsTexture;
+
+        planetData.RiversSources = RiversSources;
+        planetData.RiversTransparency = _riversTransparency;
+        planetData.RiversEdgeSmoothness = _riversEdgeSmoothness;
+        planetData.RiversErosionPower = _riversErosionPower;
+        planetData.RiversErosionSmoothness = _riversErosionSmoothness;
+        planetData.RiversBedWidth = _riversBedWidth;
+        planetData.RiversTexture = _riversTexture;
+        planetData.RiversTextureTilling = _riversTextureTilling;
+        planetData.RiversColor = _RiversColor;
 
 #if UNITY_EDITOR
         UnityEditor.EditorUtility.SetDirty(planetData);
@@ -911,10 +920,22 @@ public class PlanetGenerationTool : EditorWindow
         _ringsWidth = _importedPlanetData.RingsWidth;
         _ringsColor = _importedPlanetData.RingsColor;
         _ringsTexture = _importedPlanetData.RingsTexture;
+
+        RiversSources = _importedPlanetData.RiversSources;
+        _riversTransparency = _importedPlanetData.RiversTransparency;
+        _riversEdgeSmoothness = _importedPlanetData.RiversEdgeSmoothness;
+        _riversErosionPower = _importedPlanetData.RiversErosionPower;
+        _riversErosionSmoothness = _importedPlanetData.RiversErosionSmoothness;
+        _riversBedWidth = _importedPlanetData.RiversBedWidth;
+        _riversTexture = _importedPlanetData.RiversTexture;
+        _riversTextureTilling = _importedPlanetData.RiversTextureTilling;
+        _RiversColor = _importedPlanetData.RiversColor;
     }
 
     public void ValidateRiversSources(SelectOnMapWindow selectionWindow = null)
     {
+        if(RiversSources == null || _heightMapGenerator == null) { return; }
+
         float[] tempBuffer = new float[RIVERS_WINDOW_GRID_SIZE * RIVERS_WINDOW_GRID_SIZE];
 
         foreach(Vector2 sourcePosition in RiversSources)
@@ -974,6 +995,9 @@ public class PlanetGenerationTool : EditorWindow
             _boldCenteredStyle = new GUIStyle(GUI.skin.label) { alignment = TextAnchor.MiddleCenter };
             _boldCenteredStyle.fontStyle = FontStyle.Bold;
             _boldCenteredStyle.fontSize = 15;
+
+            _richTextStyle = new GUIStyle();
+            _richTextStyle.richText = true;
         }
 
         void ScrollAndMarginsStart()
@@ -1268,10 +1292,10 @@ public class PlanetGenerationTool : EditorWindow
                     ApplyTerrainDefaultParameters();
                 }
 
-                if (GUILayout.Button("Export textures"))
-                {
-                    _heightMapGenerator.ExportAllTextures();
-                }
+                //if (GUILayout.Button("Export textures"))
+                //{
+                //    _heightMapGenerator.ExportAllTextures();
+                //}
             }
 
             void OceanTab()
@@ -1318,6 +1342,22 @@ public class PlanetGenerationTool : EditorWindow
                 GUILayout.Space(BIG_SPACE);
                 DrawUILine();
                 GUILayout.Space(SMALL_SPACE);
+                SectionTitle("Rivers parameters");
+
+                GUILayout.Space(SMALL_SPACE);
+
+                _riversTransparency = EditorGUILayout.Slider("Opacity :", _riversTransparency, 0.0f, 1.0f);
+                _riversEdgeSmoothness = EditorGUILayout.Slider("Edge smoothness :", _riversEdgeSmoothness, 0.0f, 9.99f);
+                _riversErosionPower = EditorGUILayout.Slider("Erosion power :", _riversErosionPower, 0.0f, 2.0f);
+                _riversErosionSmoothness = EditorGUILayout.Slider("Erosion smoothness :", _riversErosionSmoothness, 0.0f, 0.99f);
+                _riversBedWidth = EditorGUILayout.Slider("Rivers bed width :", _riversBedWidth, 0.0f, 1.0f);
+                _riversTexture = (Texture2D)EditorGUILayout.ObjectField("Rivers texture :", _riversTexture, typeof(Texture2D), false);
+                _riversTextureTilling = EditorGUILayout.FloatField("Texture tilling :", _riversTextureTilling);
+                _RiversColor = EditorGUILayout.ColorField(new GUIContent("Color :"), _RiversColor, true, false, true);
+
+                GUILayout.Space(BIG_SPACE);
+                DrawUILine();
+                GUILayout.Space(SMALL_SPACE);
                 SectionTitle("Rivers sources list");
 
                 GUILayout.Space(SMALL_SPACE);
@@ -1342,7 +1382,7 @@ public class PlanetGenerationTool : EditorWindow
                 {
                     for (int i = 0; i < RiversSources.Count; i++)
                     {
-                        EditorGUILayout.LabelField($"• River {i + 1} - x : {RiversSources[i].x} / y : {RiversSources[i].y}");
+                        EditorGUILayout.LabelField($"<color=#8da7fc>• River source {i + 1} - x : <b>{RiversSources[i].x}</b> / y : <b>{RiversSources[i].y}</b></color>", _richTextStyle);
                     }
                 }
                 else
@@ -1353,10 +1393,15 @@ public class PlanetGenerationTool : EditorWindow
                 DrawUILine();
                 GUILayout.Space(SMALL_SPACE);
 
-                if (GUILayout.Button("Clear all"))
+                if (GUILayout.Button("Clear all sources"))
                 {
                     RiversSources.Clear();
                     ValidateRiversSources();
+                }
+
+                if (GUILayout.Button("Reset parameters to default"))
+                {
+                    ApplyRiversDefaultParameters();
                 }
             }
         }

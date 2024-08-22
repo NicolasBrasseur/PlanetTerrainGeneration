@@ -66,6 +66,14 @@ Material:
         m_Texture: {fileID: 0}
         m_Scale: {x: 1, y: 1}
         m_Offset: {x: 0, y: 0}
+    - _RiversMap:
+        m_Texture: {fileID: 0}
+        m_Scale: {x: 1, y: 1}
+        m_Offset: {x: 0, y: 0}
+    - _RiversTexture:
+        m_Texture: {fileID: 2800000, guid: b29d531bfe7f37640ac89c7888c44bf9, type: 3}
+        m_Scale: {x: 1, y: 1}
+        m_Offset: {x: 0, y: 0}
     - _Rock:
         m_Texture: {fileID: 2800000, guid: 32359788e9eb03340a8ac788006f4cdb, type: 3}
         m_Scale: {x: 1, y: 1}
@@ -90,6 +98,14 @@ Material:
         m_Texture: {fileID: 2800000, guid: 730fb73c0591a39429dcd1e88434194f, type: 3}
         m_Scale: {x: 1, y: 1}
         m_Offset: {x: 0, y: 0}
+    - _TriplanarLOD_4f72b25fa5954c5294aeaef66375d9c3_NormalTex_3485810218_Texture2D:
+        m_Texture: {fileID: 0}
+        m_Scale: {x: 1, y: 1}
+        m_Offset: {x: 0, y: 0}
+    - _TriplanarLOD_61ca55cabf144e2fa06aea2f854ef971_NormalTex_3485810218_Texture2D:
+        m_Texture: {fileID: 0}
+        m_Scale: {x: 1, y: 1}
+        m_Offset: {x: 0, y: 0}
     - _TriplanarLOD_7515bbc0fe6d41feb8f0657a0dc31c44_NormalTex_3485810218_Texture2D:
         m_Texture: {fileID: 0}
         m_Scale: {x: 1, y: 1}
@@ -111,6 +127,10 @@ Material:
         m_Scale: {x: 1, y: 1}
         m_Offset: {x: 0, y: 0}
     - _TriplanarLOD_dc434fd72ba44b5ba68dfd3e9a73e749_NormalTex_3485810218_Texture2D:
+        m_Texture: {fileID: 0}
+        m_Scale: {x: 1, y: 1}
+        m_Offset: {x: 0, y: 0}
+    - _TriplanarLOD_efd5fa670490456b92d2c8c2fa2f6f36_NormalTex_3485810218_Texture2D:
         m_Texture: {fileID: 0}
         m_Scale: {x: 1, y: 1}
         m_Offset: {x: 0, y: 0}
@@ -138,6 +158,9 @@ Material:
     - _Offset: 45.2
     - _QueueControl: 0
     - _QueueOffset: 0
+    - _RiversMultiply: 0.97
+    - _RiversPower: 0.5
+    - _RiversTilling: 4
     - _RockSmoothness: 0.171
     - _RockTilling: 1.79
     - _SmoothnessTexture01: 0
@@ -169,6 +192,7 @@ Material:
     - _Color04: {r: 1, g: 1, b: 1, a: 0}
     - _ColorBottom: {r: 0.28128338, g: 0.4056604, b: 0.301636, a: 0}
     - _ColorTop: {r: 0.4339623, g: 0.4339623, b: 0.4339623, a: 0}
+    - _RiversColor: {r: 0.08285868, g: 0.1600758, b: 0.3584906, a: 0}
     - _TexturePlacementRemap: {r: 0.45, g: 0.55, b: 0, a: 0}
     - _TopColor: {r: 0, g: 0, b: 0, a: 0}
     - _ViewIntensity: {r: -2.4, g: 2.54, b: 0, a: 0}

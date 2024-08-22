@@ -76,4 +76,16 @@ public class PlanetData : ScriptableObject
     public float RingsWidth;
     public Color RingsColor;
     public Texture RingsTexture;
+
+    [Space(10)]
+    [Header("Rivers parameters")]
+    public List<Vector2> RiversSources;
+    public float RiversTransparency;
+    public float RiversEdgeSmoothness;
+    public float RiversErosionPower;
+    public float RiversErosionSmoothness;
+    public float RiversBedWidth;
+    public Texture2D RiversTexture;
+    public float RiversTextureTilling;
+    public Color RiversColor;
 }

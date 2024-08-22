@@ -10,9 +10,9 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: e3b9b0b837abceb4996f8d5ee16a225f, type: 3}
-  m_Name: SuperEarth_data
+  m_Name: ExoticPlanet_data
   m_EditorClassIdentifier: 
-  PlanetSize: 60
+  PlanetSize: 55
   PlanetResolution: 250
   Seed: 0
   MountainsHeight: 2.69
@@ -66,10 +66,10 @@ MonoBehaviour:
   TerrainTexture02: {fileID: 2800000, guid: 1e70c3c0c329a8849b08ed64daa834ce, type: 3}
   TerrainTexture03: {fileID: 2800000, guid: 730fb73c0591a39429dcd1e88434194f, type: 3}
   TerrainTexture04: {fileID: 2800000, guid: 925f828a192b5ac43981ba03616ba4c1, type: 3}
-  TerrainTextureColor01: {r: 1, g: 1, b: 1, a: 0}
-  TerrainTextureColor02: {r: 1, g: 1, b: 1, a: 0}
-  TerrainTextureColor03: {r: 1, g: 1, b: 1, a: 0}
-  TerrainTextureColor04: {r: 1, g: 1, b: 1, a: 0}
+  TerrainTextureColor01: {r: 0.21698111, g: 0.16068885, b: 0.16068885, a: 0}
+  TerrainTextureColor02: {r: 0.1923211, g: 0, b: 0.5943396, a: 0}
+  TerrainTextureColor03: {r: 0.8396226, g: 0, b: 0, a: 0}
+  TerrainTextureColor04: {r: 0.46293163, g: 0.8027089, b: 0.9716981, a: 0}
   TerrainTextureTilling01: 1
   TerrainTextureTilling02: 1.67
   TerrainTextureTilling03: 1.83
@@ -83,8 +83,8 @@ MonoBehaviour:
   TerrainTexture03Height: 0.547
   TerrainTexture04Height: 0.666
   HasAtmosphere: 1
-  AtmosphereMainColor: {r: 0.41438228, g: 0.8285775, b: 0.9056604, a: 1}
-  AtmosphereHorizonColor: {r: 0.9254902, g: 0.60031027, b: 0.28235286, a: 1}
+  AtmosphereMainColor: {r: 0.50239, g: 1.1452333, b: 0.63095874, a: 1}
+  AtmosphereHorizonColor: {r: 0.61137515, g: 0.15886435, b: 0.9622642, a: 1}
   AtmosphereRadius: 9
   AtmosphereDensity: 174
   AtmosphereEdgeSmoothness: 4
@@ -92,12 +92,12 @@ MonoBehaviour:
   AtmospherePlanetVisibilityModifier: 7
   HasOcean: 1
   OceanHeight: 0
-  OceanColor: {r: 0.0043609855, g: 0.0203253, b: 0.13207546, a: 0}
+  OceanColor: {r: 0.049823765, g: 0.14083517, b: 0.09394417, a: 0}
   OceanTexture: {fileID: 0}
   OceanNormalTexture: {fileID: 2800000, guid: 9399037e36fc91343b0134fcbc249d43, type: 3}
   OceanTextureTilling: 30
   OceanSmoothness: 0.8
-  OceanMetalness: 0
+  OceanMetalness: 0.561
   OceanHeightVariationIntensity: 0
   OceanHeightVariationFrequency: 100
   OceanHeightVariationSeed: 0
@@ -105,6 +105,33 @@ MonoBehaviour:
   HasRings: 1
   RingsSize: 14.94
   RingsRotation: {x: -2.09, y: -3.5, z: -34.88}
-  RingsWidth: 1
-  RingsColor: {r: 0.026544299, g: 0.05887607, b: 0.0662046, a: 0}
+  RingsWidth: 0.24
+  RingsColor: {r: 4.483253, g: 9.943993, b: 11.18176, a: 0}
   RingsTexture: {fileID: 2800000, guid: d3ea7a7c059dfcf4d9a56705488f0223, type: 3}
+  RiversSources:
+  - {x: 32, y: 27}
+  - {x: 39, y: 11}
+  - {x: 18, y: 6}
+  - {x: 13, y: 39}
+  - {x: 24, y: 61}
+  - {x: 51, y: 42}
+  - {x: 58, y: 18}
+  - {x: 54, y: 3}
+  - {x: 12, y: 14}
+  - {x: 37, y: 37}
+  - {x: 55, y: 56}
+  - {x: 12, y: 30}
+  - {x: 44, y: 19}
+  - {x: 55, y: 34}
+  - {x: 40, y: 56}
+  - {x: 10, y: 51}
+  - {x: 21, y: 18}
+  - {x: 26, y: 39}
+  RiversTransparency: 0.932
+  RiversEdgeSmoothness: 4
+  RiversErosionPower: 0.273
+  RiversErosionSmoothness: 0.045
+  RiversBedWidth: 0.937
+  RiversTexture: {fileID: 2800000, guid: b29d531bfe7f37640ac89c7888c44bf9, type: 3}
+  RiversTextureTilling: 4
+  RiversColor: {r: 30.414097, g: 9.699297, b: 4.16042, a: 0}

@@ -13,6 +13,12 @@ public class TerrainReferenceData : ScriptableObject
     [Range(0.1f, 0.9f)]
     public float NoiseLacunarity = 0.5f;
     public float DetailsIntensity = 1.0f;
+    [Range(0.0f, 2.0f)]
+    public float RiversErosionPower = 0.2f;
+    [Range(0.0f, 0.99f)]
+    public float RiversErosionSmoothness = 0.5f;
+    [Range(0.0f, 1.0f)]
+    public float RiversBedWidth = 0.9f;
 
     public AnimationCurve GetHeightRemap()
     {

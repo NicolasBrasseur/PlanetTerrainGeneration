@@ -1,0 +1,140 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: e3b9b0b837abceb4996f8d5ee16a225f, type: 3}
+  m_Name: LushWorld_data
+  m_EditorClassIdentifier: 
+  PlanetSize: 60
+  PlanetResolution: 250
+  Seed: 0
+  MountainsHeight: 2.69
+  HeightRemap:
+    serializedVersion: 2
+    m_Curve:
+    - serializedVersion: 3
+      time: 0
+      value: 0
+      inSlope: 0.009930487
+      outSlope: 0.009930487
+      tangentMode: 0
+      weightedMode: 0
+      inWeight: 0.33333334
+      outWeight: 0.8106334
+    - serializedVersion: 3
+      time: 0.33048075
+      value: 0.48122406
+      inSlope: 0.2817819
+      outSlope: -0.061096374
+      tangentMode: 1
+      weightedMode: 0
+      inWeight: 0.7724538
+      outWeight: 0.8606362
+    - serializedVersion: 3
+      time: 0.48982796
+      value: 0.49137425
+      inSlope: 0.039739966
+      outSlope: 0.20009297
+      tangentMode: 1
+      weightedMode: 0
+      inWeight: 0.56454074
+      outWeight: 0.45149082
+    - serializedVersion: 3
+      time: 1
+      value: 1
+      inSlope: 0.011098805
+      outSlope: 0.011098805
+      tangentMode: 0
+      weightedMode: 0
+      inWeight: 0.8330524
+      outWeight: 0
+    m_PreInfinity: 2
+    m_PostInfinity: 2
+    m_RotationOrder: 4
+  NoiseScale: 130
+  NoiseGain: 2
+  NoiseLacunarity: 0.5
+  DetailsIntensity: 3
+  TerrainTexture01: {fileID: 2800000, guid: 14bb6a9eeb8d7aa469eadd9e2c792f67, type: 3}
+  TerrainTexture02: {fileID: 2800000, guid: 1e70c3c0c329a8849b08ed64daa834ce, type: 3}
+  TerrainTexture03: {fileID: 2800000, guid: 730fb73c0591a39429dcd1e88434194f, type: 3}
+  TerrainTexture04: {fileID: 2800000, guid: 925f828a192b5ac43981ba03616ba4c1, type: 3}
+  TerrainTextureColor01: {r: 1, g: 1, b: 1, a: 0}
+  TerrainTextureColor02: {r: 1, g: 1, b: 1, a: 0}
+  TerrainTextureColor03: {r: 1, g: 1, b: 1, a: 0}
+  TerrainTextureColor04: {r: 1, g: 1, b: 1, a: 0}
+  TerrainTextureTilling01: 1
+  TerrainTextureTilling02: 1.67
+  TerrainTextureTilling03: 1.83
+  TerrainTextureTilling04: 0.78
+  TerrainTextureSmoothness01: 0
+  TerrainTextureSmoothness02: 0
+  TerrainTextureSmoothness03: 0
+  TerrainTextureSmoothness04: 0
+  TerrainTexturesSeparationSmoothness: 0.006
+  TerrainTexture02Height: 0.501
+  TerrainTexture03Height: 0.547
+  TerrainTexture04Height: 0.666
+  HasAtmosphere: 1
+  AtmosphereMainColor: {r: 0.4143823, g: 0.8285775, b: 0.9056604, a: 1}
+  AtmosphereHorizonColor: {r: 0.9254902, g: 0.60031027, b: 0.2823529, a: 1}
+  AtmosphereRadius: 9
+  AtmosphereDensity: 175
+  AtmosphereEdgeSmoothness: 4
+  AtmosphereLightingDistance: 1
+  AtmospherePlanetVisibilityModifier: -2.9
+  HasOcean: 1
+  OceanHeight: 0
+  OceanColor: {r: 0.0043609855, g: 0.0203253, b: 0.13207546, a: 0}
+  OceanTexture: {fileID: 0}
+  OceanNormalTexture: {fileID: 2800000, guid: 9399037e36fc91343b0134fcbc249d43, type: 3}
+  OceanTextureTilling: 30
+  OceanSmoothness: 0.8
+  OceanMetalness: 0
+  OceanHeightVariationIntensity: 0
+  OceanHeightVariationFrequency: 100
+  OceanHeightVariationSeed: 0
+  OceanMovementSpeed: 2
+  HasRings: 1
+  RingsSize: 23.35
+  RingsRotation: {x: 50.89, y: -76.23, z: 0}
+  RingsWidth: 0.51
+  RingsColor: {r: 1.301175, g: 2.8860462, b: 3.2452836, a: 0}
+  RingsTexture: {fileID: 2800000, guid: d3ea7a7c059dfcf4d9a56705488f0223, type: 3}
+  RiversSources:
+  - {x: 32, y: 29}
+  - {x: 56, y: 29}
+  - {x: 55, y: 3}
+  - {x: 17, y: 15}
+  - {x: 12, y: 31}
+  - {x: 40, y: 55}
+  - {x: 17, y: 53}
+  - {x: 56, y: 53}
+  - {x: 41, y: 13}
+  - {x: 35, y: 4}
+  - {x: 55, y: 17}
+  - {x: 32, y: 43}
+  - {x: 9, y: 23}
+  - {x: 9, y: 51}
+  - {x: 31, y: 55}
+  - {x: 59, y: 40}
+  - {x: 23, y: 1}
+  - {x: 24, y: 60}
+  - {x: 7, y: 15}
+  - {x: 4, y: 4}
+  - {x: 42, y: 31}
+  RiversTransparency: 0.97
+  RiversEdgeSmoothness: 9.4
+  RiversErosionPower: 0.3
+  RiversErosionSmoothness: 0.2
+  RiversBedWidth: 0.9
+  RiversTexture: {fileID: 2800000, guid: b29d531bfe7f37640ac89c7888c44bf9, type: 3}
+  RiversTextureTilling: 4
+  RiversColor: {r: 0.08285868, g: 0.1600758, b: 0.3584906, a: 0}

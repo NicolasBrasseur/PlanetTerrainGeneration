@@ -59,11 +59,15 @@ public class HeightMapGenerator : MonoBehaviour
     public float NormalIntensity = 10.0f;
     public float NormalLimitation = 1.0f;
     [HideInInspector] public float AOIntensity = 0.0f;
+    public float RiversErosionPower = 0.0f;
+    public float RiversErosionSmoothness = 0.5f;
+    public float RiversBedWidth = 0.0f;
 
     [HideInInspector] public float[] RiversSourcesTempBuffer = new float[4096];
 
     // Private var
     private RenderTexture _generatedTexture;
+    private RenderTexture _finalHeightMap;
     private RenderTexture _normalTexture;
     private RenderTexture _riversStructureTexture;
     private RenderTexture _riversTexture;
@@ -145,6 +149,8 @@ public class HeightMapGenerator : MonoBehaviour
             _normalTexture.Release();
         if (_heightRemapData != null)
             _heightRemapData.Release();
+        if(_finalHeightMap != null)
+            _finalHeightMap.Release();
 
         _generatedTexture = new RenderTexture(TextureResolution, TextureResolution, 0, RenderTextureFormat.R16, RenderTextureReadWrite.Linear);
         _generatedTexture.enableRandomWrite = true;
@@ -156,12 +162,17 @@ public class HeightMapGenerator : MonoBehaviour
         _normalTexture.wrapMode = TextureWrapMode.Clamp;
         _normalTexture.Create();
 
+        _finalHeightMap = new RenderTexture(TextureResolution, TextureResolution, 0, RenderTextureFormat.R16, RenderTextureReadWrite.Linear);
+        _finalHeightMap.enableRandomWrite = true;
+        _finalHeightMap.wrapMode = TextureWrapMode.Clamp;
+        _finalHeightMap.Create();
+
         _kernelGenerator = TextureGenerator.FindKernel("CSMain");
         _kernelNormal = TextureGenerator.FindKernel("CSNormal");
 
         _heightRemapData = new ComputeBuffer(256, 4);
 
-        renderer.sharedMaterial.SetTexture(HEIGHT_MAP_NAME, _generatedTexture);
+        renderer.sharedMaterial.SetTexture(HEIGHT_MAP_NAME, _finalHeightMap);
         renderer.sharedMaterial.SetTexture(NORMAL_MAP_NAME, _normalTexture);
     }
 
@@ -182,7 +193,7 @@ public class HeightMapGenerator : MonoBehaviour
 
         _riversTexture = new RenderTexture(TextureResolution, TextureResolution, 0, RenderTextureFormat.R16, RenderTextureReadWrite.Linear);
         _riversTexture.enableRandomWrite = true;
-        _riversTexture.filterMode = FilterMode.Point;
+        _riversTexture.filterMode = FilterMode.Bilinear;
         _riversTexture.wrapMode = TextureWrapMode.Clamp;
         _riversTexture.Create();
 
@@ -220,6 +231,9 @@ public class HeightMapGenerator : MonoBehaviour
         TextureGenerator.SetFloat("AOIntensity", AOIntensity);
         TextureGenerator.SetVector("Position", Position);
         TextureGenerator.SetFloat("Seed", Seed);
+        TextureGenerator.SetFloat("ErosionPower", RiversErosionPower);
+        TextureGenerator.SetFloat("ErosionSmoothness", RiversErosionSmoothness);
+        TextureGenerator.SetFloat("RiversBedWidth", RiversBedWidth);
 
         TextureGenerator.SetInt("NoiseType", (int)NoiseTypeValue);
         TextureGenerator.SetInt("VoronoiDistance", (int)VoronoiDistanceValue);
@@ -229,7 +243,7 @@ public class HeightMapGenerator : MonoBehaviour
         TextureGenerator.SetTexture(_kernelGenerator, "HeightOutput", _generatedTexture);
         TextureGenerator.Dispatch(_kernelGenerator, TextureResolution / 8, TextureResolution / 8, 1);
 
-        TextureGenerator.SetTexture(_kernelNormal, "HeightInput", _generatedTexture);
+        TextureGenerator.SetTexture(_kernelNormal, "HeightInput", _finalHeightMap);
         TextureGenerator.SetTexture(_kernelNormal, "NormalOutput", _normalTexture);
         TextureGenerator.Dispatch(_kernelNormal, TextureResolution / 8, TextureResolution / 8, 1);
     }
@@ -257,6 +271,8 @@ public class HeightMapGenerator : MonoBehaviour
 
         TextureGenerator.SetTexture(_kernelRiversSmoothing, "RiversStructureMap", _riversStructureTexture);
         TextureGenerator.SetTexture(_kernelRiversSmoothing, "RiversMap", _riversTexture);
+        TextureGenerator.SetTexture(_kernelRiversSmoothing, "HeightErodedInput", _generatedTexture);
+        TextureGenerator.SetTexture(_kernelRiversSmoothing, "HeightErodedOutput", _finalHeightMap);
         TextureGenerator.Dispatch(_kernelRiversSmoothing, TextureResolution / 8, TextureResolution / 8, 1);
     }
 
